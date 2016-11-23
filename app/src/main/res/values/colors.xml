@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#546e70</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorActionBar">#546e70</color>
+    <color name="colorActionBarText">#dce0e1</color>
+    <color name="colorFirstText">#283237</color>
+    <color name="colorSecondText">#374850</color>
+    <color name="colorThirdText">#465a64</color>
+    <color name="colorMenuBar">#afbec5</color>
+    <color name="colorCard">#fafafa</color>
+</resources>

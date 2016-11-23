@@ -1,0 +1,84 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="MenuPadButton" parent="AppTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingLeft">30dp</item>
+        <item name="android:paddingRight">30dp</item>
+        <item name="android:scaleType">centerInside</item>
+
+    </style>
+
+    <style name="LinerLayoutFD" parent="AppTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">@dimen/activity_0.5step_margin</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+
+    <style name="TextTitleFD" parent="AppTheme">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/colorSecondText</item>
+    </style>
+
+    <style name="TextFieldFD" parent="AppTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/activity_0.5step_margin</item>
+        <item name="android:textColor">@color/colorSecondText</item>
+        <item name="android:textSize">@dimen/secondary_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextSecond" parent="AppTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/activity_0.5step_margin</item>
+        <item name="android:layout_marginRight">@dimen/activity_0.5step_margin</item>
+        <item name="android:layout_marginBottom">@dimen/activity_0.5step_margin</item>
+        <item name="android:textColor">@color/colorSecondText</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+
+    <style name="TextThird" parent="AppTheme">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/colorThirdText</item>
+    </style>
+
+
+
+    <!--<item name="android:background">"@drawable/ib_state_list"</item>-->
+    <!--<item name="android:background">?attr/selectableItemBackgroundBorderless</item>-->
+
+    <!--<style name="UserDataText" parent="AppTheme">-->
+    <!--<item name="android:layout_width">0dp</item>-->
+    <!--<item name="android:layout_weight">3</item>-->
+    <!--<item name="android:layout_height">wrap_content</item>-->
+    <!--<item name="android:textAppearance">?android:attr/textAppearanceLarge</item>-->
+    <!--</style>-->
+
+    <!--<style name="ListDataText" parent="AppTheme">-->
+    <!--<item name="android:layout_width">0dp</item>-->
+    <!--<item name="android:layout_weight">5</item>-->
+    <!--<item name="android:textColor">@color/colorPrimaryDark</item>-->
+    <!--<item name="android:layout_height">wrap_content</item>-->
+    <!--<item name="android:textAppearance">?android:attr/textAppearanceLarge</item>-->
+    <!--</style>-->
+
+</resources>

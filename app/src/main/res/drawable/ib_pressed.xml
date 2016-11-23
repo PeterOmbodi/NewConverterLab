@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="@color/colorThirdText"
+        android:endColor="@color/colorPrimary"
+        android:angle="90"/>
+    <padding
+        android:left="@dimen/activity_0.5step_margin"
+        android:top="@dimen/activity_0.5step_margin"
+        android:right="@dimen/activity_0.5step_margin"
+        android:bottom="@dimen/activity_0.5step_margin"/>
+    <stroke
+        android:color="@android:color/holo_green_dark"
+        android:dashGap="2dp"
+        android:dashWidth="5dp"
+        android:width="@dimen/activity_0.5step_margin" />
+    <corners android:radius="@dimen/activity_0.5step_margin" />
+</shape>
