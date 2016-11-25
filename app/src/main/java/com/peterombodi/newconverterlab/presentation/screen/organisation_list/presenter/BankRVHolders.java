@@ -5,8 +5,9 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.presentation.R;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IRecyclerView;
+import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
 
 /**
  * Created by Admin on 22.11.2016.
@@ -26,13 +27,16 @@ public class BankRVHolders extends RecyclerView.ViewHolder implements View.OnCli
     public TextView tvDateDelta;
     public TextView tvDateShort;
 
-    private IRecyclerView iRecyclerView;
+    private IListFragment.IPresenter iRecyclerView;
+//    private IRecyclerView iRecyclerView;
+public OrganizationRV organizationRV;
     private ImageButton ibLink;
     private ImageButton ibMap;
     private ImageButton ibCall;
     private ImageButton ibNext;
 
-    public BankRVHolders(View itemView, IRecyclerView iRecyclerView) {
+    public BankRVHolders(View itemView, IListFragment.IPresenter iRecyclerView) {
+
         super(itemView);
 
         tvId = (TextView) itemView.findViewById(R.id.tv_id_ILO);
@@ -74,15 +78,7 @@ public class BankRVHolders extends RecyclerView.ViewHolder implements View.OnCli
                 iRecyclerView.openCaller(this.tvPhone.getText().toString());
                 break;
             case R.id.ib_next_ILO:
-                iRecyclerView.openDetail(this.tvId.getText().toString(),
-                        this.tvName.getText().toString(),
-                        this.tvRegion.getText().toString(),
-                        this.tvCity.getText().toString(),
-                        this.tvAddress.getText().toString(),
-                        this.tvPhone.getText().toString(),
-                        this.tvLink.getText().toString(),
-                        this.tvDate.getText().toString(),
-                        this.tvDateDelta.getText().toString());
+                iRecyclerView.openDetail(this.organizationRV);
                 break;
 
         }

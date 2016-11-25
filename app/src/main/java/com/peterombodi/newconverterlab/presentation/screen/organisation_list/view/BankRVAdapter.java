@@ -1,6 +1,5 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_list.presenter;
+package com.peterombodi.newconverterlab.presentation.screen.organisation_list.view;
 
-import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,7 +9,8 @@ import android.view.ViewGroup;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.global.Constants;
 import com.peterombodi.newconverterlab.presentation.R;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IRecyclerView;
+import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisation_list.presenter.BankRVHolders;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,16 +28,22 @@ public class BankRVAdapter extends RecyclerView.Adapter<BankRVHolders> {
 
     private static final String TAG = "BankRVAdapter";
     private List<OrganizationRV> itemList;
-    private IRecyclerView iRecyclerView;
+    private IListFragment.IPresenter iRecyclerView;
+//    private IRecyclerView iRecyclerView;
 //    private Context context;
     private Date yesterday = new Date(System.currentTimeMillis() - 1000L * 60L * 60L * 24L);
 
 
-    public BankRVAdapter(Context context, List<OrganizationRV> itemList) {
+    public BankRVAdapter(IListFragment.IPresenter presenter, List<OrganizationRV> itemList) {
         this.itemList = itemList;
-        this.iRecyclerView = (IRecyclerView) context;
-//        this.context = context;
+        this.iRecyclerView = presenter;
     }
+
+//    public BankRVAdapter(Context context, List<OrganizationRV> itemList) {
+//        this.itemList = itemList;
+//        this.iRecyclerView = (IRecyclerView) context;
+//    }
+
 
     @Override
     public BankRVHolders onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -49,6 +55,8 @@ public class BankRVAdapter extends RecyclerView.Adapter<BankRVHolders> {
 
     @Override
     public void onBindViewHolder(BankRVHolders holder, int position) {
+
+        holder.organizationRV = itemList.get(position);
         holder.tvId.setText(itemList.get(position).getId());
         holder.tvName.setText(itemList.get(position).getTitle());
         holder.tvRegion.setText(itemList.get(position).getRegion());

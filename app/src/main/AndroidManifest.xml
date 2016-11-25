@@ -4,6 +4,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <!--debud-->
+
+
+
+
 
     <application
         android:name=".Application"
@@ -12,6 +20,17 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBCFGlBzWXtmLYZQmYAMF_FlEl0RR9VGws" />
+
+        <!--release-->
+
+        <!--<meta-data-->
+        <!--android:name="com.google.android.geo.API_KEY"-->
+        <!--android:value="AIzaSyCfxkxXnsVe09Z9olBso9ClswPoxGwxbQc" />-->
+
         <activity android:name=".screen.main.view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,6 +38,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".screen.legalNotice.LegalNoticesActivity" />
 
         <!--<service-->
             <!--android:name="com.peterombodi.newconverterlab.data.downloader.DownloaderJobService"-->

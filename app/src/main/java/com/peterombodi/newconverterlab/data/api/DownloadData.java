@@ -1,7 +1,8 @@
 package com.peterombodi.newconverterlab.data.api;
 
+import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
-import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
+import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
 
 import java.util.ArrayList;
 
@@ -10,6 +11,7 @@ import java.util.ArrayList;
  */
 
 public interface DownloadData {
-    void downloadData(IMainScreen.ResponseCallback _callback);
-    ArrayList<OrganizationRV> getDbData();
+    void downloadData(IListFragment.ResponseCallback<DataResponse> _callback);
+
+    ArrayList<OrganizationRV> getDbData(String _filter);
 }

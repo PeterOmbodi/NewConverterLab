@@ -1,6 +1,7 @@
 package com.peterombodi.newconverterlab.data.api;
 
 import android.database.Cursor;
+import android.os.Handler;
 import android.util.Log;
 
 import com.peterombodi.newconverterlab.data.database.CoursesLabDb;
@@ -9,7 +10,7 @@ import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.data.model.Organization;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.presentation.Application;
-import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
+import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,18 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.peterombodi.newconverterlab.data.database.DBHelper.*;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.ADDRESS_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.CITY_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.DATE_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.DATE_DELTA_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.ID_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.LINK_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.PHONE_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.REGION_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_CITIES;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_CURRENCIES;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_REGIONS;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TITLE_COLUMN;
 
 /**
  * Created by Admin on 18.11.2016.
@@ -34,7 +46,8 @@ public class DownloadDataImpl implements DownloadData {
     private Retrofit retrofit;
     private DataResponse dataResponse;
     private ArrayList<OrganizationRV> rvArrayList;
-
+    private Handler handler;
+    private IListFragment.ResponseCallback<DataResponse> callback;
 
     public DownloadDataImpl() {
 
@@ -43,12 +56,18 @@ public class DownloadDataImpl implements DownloadData {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+        handler = new Handler() {
+            public void handleMessage(android.os.Message msg) {
+                callback.onSaveData();
+            };
+        };
+
     }
 
     @Override
-    public void downloadData(final IMainScreen.ResponseCallback _callback) {
+    public void downloadData(final IListFragment.ResponseCallback<DataResponse> _callback) {
         Log.d(TAG, "getData1");
-
+        callback = _callback;
         ApiRest getData = retrofit.create(ApiRest.class);
         dataResponseCall = getData.connect();
         dataResponseCall.enqueue(new Callback<DataResponse>() {
@@ -57,15 +76,15 @@ public class DownloadDataImpl implements DownloadData {
             public void onResponse(Call<DataResponse> _call, Response<DataResponse> _response) {
                 DataResponse dataResponse = _response.body();
                 Log.d(TAG, "*-* " + "retrofit success:" + dataResponse.toString());
-                saveData(dataResponse);
-                if (_callback != null) _callback.onResponse(dataResponse);
+                saveData(dataResponse,_callback);
+                if (_callback != null) _callback.onRefreshResponse(dataResponse);
             }
 
             @Override
             public void onFailure(Call<DataResponse> _call, Throwable _t) {
-                Log.d(TAG, "*-* " + "retrofit onFailure:" + _t.toString());
+                Log.d(TAG, "*-* " + "retrofit onRefreshFailure:" + _t.toString());
                 if (_callback != null){
-                    _callback.onFailure();
+                    _callback.onRefreshFailure();
                 }
             }
         });
@@ -73,7 +92,7 @@ public class DownloadDataImpl implements DownloadData {
         Log.d(TAG, "getData2");
     }
 
-    private void saveData(final DataResponse _dataResponse) {
+    private void saveData(final DataResponse _dataResponse,final IListFragment.ResponseCallback _callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -120,6 +139,7 @@ public class DownloadDataImpl implements DownloadData {
                     dictionUpdate(db, TBL_REGIONS, _dataResponse.getRegions());
                 }
                 db.close();
+                if (callback != null) handler.sendEmptyMessage(1);
             }
         }).start();
     }
@@ -131,13 +151,13 @@ public class DownloadDataImpl implements DownloadData {
     }
 
     @Override
-    public ArrayList<OrganizationRV> getDbData() {
+    public ArrayList<OrganizationRV> getDbData(String _filter) {
         Log.d(TAG, " ************ getDbData ++++++++++++++++++++++++ ");
         CoursesLabDb db;
         db = new CoursesLabDb(Application.getContext());
         db.open();
         rvArrayList = new ArrayList<>();
-        Cursor banks = db.getData4RV();
+        Cursor banks = db.getData4RV(_filter);
         if (banks.getCount() > 0) {
             banks.moveToFirst();
             while (!banks.isAfterLast()) {

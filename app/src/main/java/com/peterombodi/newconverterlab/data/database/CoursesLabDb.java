@@ -146,7 +146,7 @@ public class CoursesLabDb {
     }
 
     // getting data for RecyclerView
-    public Cursor getData4RV() {
+    public Cursor getData4RV(String _filter) {
 
 //        SELECT [organizations].[id],
 //        [organizations].[title],
@@ -160,6 +160,7 @@ public class CoursesLabDb {
 //        FROM [organizations]
 //        INNER JOIN [cities] ON [organizations].[cityId] = [cities].[id]
 //        INNER JOIN [regions] ON [organizations].[regionId] = [regions].[id]
+
 
         String select = "SELECT [" + TBL_ORGANIZATIONS + "].[" + ID_COLUMN + "]," +
                 "[" + TBL_ORGANIZATIONS + "].[" + TITLE_COLUMN + "]," +
@@ -177,6 +178,13 @@ public class CoursesLabDb {
                 "INNER JOIN [" + TBL_REGIONS + "] ON " +
                 "[" + TBL_ORGANIZATIONS + "].[" + REGION_ID_COLUMN + "] " +
                 "= [" + TBL_REGIONS + "].[" + ID_COLUMN + "]";
+        if (_filter!=null){
+            select=select+" WHERE  like(\"%"+_filter+"%\","+ADDRESS_COLUMN+") "+
+                    " || like(\"%"+_filter+"%\","+TITLE_COLUMN+")"+
+                    " || like(\"%"+_filter+"%\","+REGION_COLUMN+")"+
+                    " || like(\"%"+_filter+"%\","+CITY_COLUMN+")";
+        }
+
         return mDB.rawQuery(select, null);
     }
 

@@ -28,4 +28,5 @@ public class Constants {
 
     public static final String FORMAT_DATE = "yyyy-MM-dd HH:mm";
 
+    public static final java.lang.String KEY_ADDRESS = "address";
 }

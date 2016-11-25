@@ -4,7 +4,10 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,30 +20,34 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.peterombodi.newconverterlab.data.api.DownloadData;
-import com.peterombodi.newconverterlab.data.api.DownloadDataImpl;
+import com.google.android.gms.maps.model.LatLng;
+import com.peterombodi.newconverterlab.data.geo.GeoCoderLoader;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
-import com.peterombodi.newconverterlab.global.Constants;
 import com.peterombodi.newconverterlab.presentation.R;
+import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
 import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.presenter.BankRVAdapter;
+import com.peterombodi.newconverterlab.presentation.screen.organisation_list.presenter.BankListPresenter;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Admin on 22.11.2016.
  */
 
-public class BankListFragment extends Fragment implements IListFragment.IFragment,IListFragment.IView,SearchView.OnQueryTextListener {
+public class BankListFragment extends Fragment implements IListFragment.IFragment, IListFragment.IView, SearchView.OnQueryTextListener,LoaderManager.LoaderCallbacks<LatLng>  {
 
     private static final String TAG = "BankListFragment";
-    private ArrayList<OrganizationRV> bankArrayList;
-    private ArrayList<OrganizationRV> bankArrayList4Filter;
+    private static final String MAP_FRAGMENT_TAG = "MAP_FRAGMENT_TAG";
+    static final int LOADER_GEOCODER_ID = 1;
+
     private BankRVAdapter rvAdapter;
     private Context context;
     private RecyclerView recyclerView;
     private View view;
+    private IListFragment.IPresenter presenter;
+    private IMainScreen.IRecyclerView iRecyclerView;
+    private SwipeRefreshLayout swipeContainer;
+    private LatLng bankLatLng;
 //    private IActivity iActivity;
 
     public BankListFragment() {
@@ -51,20 +58,32 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_list, container, false);
         context = getActivity();
-        if (getArguments() != null) {
-            bankArrayList = getArguments().getParcelableArrayList(Constants.KEY_ARRAY_LIST);
-            if (bankArrayList==null) {
-                // TODO: 23.11.2016 NEW!!!
-                Log.d(TAG,">>>>--- onCreateView.downloadData");
-                DownloadData downloadData = new DownloadDataImpl();
-                bankArrayList = downloadData.getDbData();
-                Log.d(TAG,">>>>--- onCreateView. data downloaded!");
-            }
-            bankArrayList4Filter = new ArrayList<>();
-            bankArrayList4Filter.addAll(bankArrayList);
-            initializeRView();
-        }
+        presenter = new BankListPresenter();
+        presenter.registerView(this);
+
         setHasOptionsMenu(true);
+
+        // Lookup the swipe container view
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer_FL);
+
+        if (swipeContainer != null) {
+            swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    presenter.refreshData();
+                    //startDataLoadingService(Constants.TASK_REFRESH_DATA, "", null);
+
+                }
+            });
+            // Configure the refreshing colors
+            swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                    android.R.color.holo_green_light,
+                    android.R.color.holo_orange_light,
+                    android.R.color.holo_red_light);
+            //   swipeContainer.setEnabled(false);
+        }
+
+
         // TODO: 22.11.2016
 //        iActivity = (IActivity) getActivity();
         return view;
@@ -80,25 +99,8 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
                 (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getActivity().getComponentName()));
-
         searchView.setOnQueryTextListener(this);
     }
-
-    // initialize RecyclerView and set adapter
-    private void initializeRView() {
-        recyclerView = (RecyclerView) view.findViewById(R.id.rv_banks_FL);
-        if (recyclerView != null) {
-            final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            recyclerView.setLayoutManager(layoutManager);
-        }
-
-        rvAdapter = new BankRVAdapter(context, bankArrayList);
-        recyclerView.setAdapter(rvAdapter);
-        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-        recyclerView.setItemAnimator(itemAnimator);
-    }
-
 
 
     @Override
@@ -108,9 +110,28 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
 //        iActivity.setPullDownRefreshEnabled(Constants.TAG_BANK_LIST_FRAGMENT, false);
     }
 
+    @Override
+    public void onAttach(Context context) {
+        iRecyclerView = (IMainScreen.IRecyclerView) context;
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        iRecyclerView = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onDestroy() {
+
+        presenter.unRegisterView();
+        super.onDestroy();
+    }
 
     @Override
     public void onResume() {
+        presenter.getBankList(null);
         // TODO: 22.11.2016
 //        iActivity.setPullDownRefreshEnabled(Constants.TAG_BANK_LIST_FRAGMENT, true);
         super.onResume();
@@ -120,6 +141,7 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
     public void onRefreshRV(ArrayList<OrganizationRV> arrayList) {
         rvAdapter.animateTo(arrayList);
         recyclerView.scrollToPosition(0);
+        swipeContainer.setRefreshing(false);
     }
 
     @Override
@@ -128,30 +150,88 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
     }
 
     @Override
-    public boolean onQueryTextChange(String query) {
-        final List<OrganizationRV> filteredModelList = filter(bankArrayList4Filter, query);
-        rvAdapter.animateTo(filteredModelList);
-        recyclerView.scrollToPosition(0);
+    public boolean onQueryTextChange(String _query) {
+        presenter.getBankList(_query);
         return true;
     }
 
-    private List<OrganizationRV> filter(List<OrganizationRV> models, String query) {
-        query = query.toLowerCase();
 
-        final List<OrganizationRV> filteredModelList = new ArrayList<>();
-        for (OrganizationRV model : models) {
-            final String title = model.getTitle().toLowerCase();
-            final String region = model.getRegion().toLowerCase();
-            final String city = model.getCity().toLowerCase();
-            if (title.contains(query) || region.contains(query) || city.contains(query)) {
-                filteredModelList.add(model);
+    @Override
+    public void setRvArrayList(ArrayList<OrganizationRV> _rvArrayList) {
+        if (recyclerView != null) {
+            rvAdapter.animateTo(_rvArrayList);
+            recyclerView.scrollToPosition(0);
+        } else {
+            recyclerView = (RecyclerView) view.findViewById(R.id.rv_banks_FL);
+            if (recyclerView != null) {
+                final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                recyclerView.setLayoutManager(layoutManager);
             }
+            rvAdapter = new BankRVAdapter(presenter, _rvArrayList);
+//            rvAdapter = new BankRVAdapter(context, _rvArrayList);
+            recyclerView.setAdapter(rvAdapter);
+            RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+            recyclerView.setItemAnimator(itemAnimator);
         }
-        return filteredModelList;
+        if (swipeContainer != null) swipeContainer.setRefreshing(false);
     }
 
     @Override
-    public void setRvArrayList(ArrayList<OrganizationRV> rvArrayList) {
+    public void openDetail(OrganizationRV _organizationRV) {
+
+    }
+
+    @Override
+    public void openLink(String _url) {
+        Log.d(TAG, "openLink _url =" + _url);
+        iRecyclerView.openLink(_url);
+    }
+
+    @Override
+    public void openMap(String _region, String _city, String _address) {
+//        iRecyclerView.openMap(_latLng);
+
+        String strAddress = _region + "," + _city + "," + _address;
+        Log.d(TAG, "openMap: " + strAddress);
+        Bundle bundle = new Bundle();
+        bundle.putString(GeoCoderLoader.ARGS_ADDRESS, strAddress);
+
+        if (getLoaderManager().getLoader(LOADER_GEOCODER_ID)==null){
+            getLoaderManager().initLoader(LOADER_GEOCODER_ID, bundle, this);
+        } else {
+            getLoaderManager().restartLoader(LOADER_GEOCODER_ID, bundle, this);
+        }
+
+    }
+
+    @Override
+    public void openCaller(String _phone) {
+
+    }
+
+
+    @Override
+    public Loader<LatLng> onCreateLoader(int id, Bundle args) {
+                GeoCoderLoader loader = null;
+        if (id == LOADER_GEOCODER_ID) {
+            loader = new GeoCoderLoader(context, args);
+            Log.d(TAG, "onCreateLoader: " + loader.hashCode());
+            loader.forceLoad();
+        }
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<LatLng> loader, LatLng _latLng) {
+        if (_latLng!=null) {
+            Log.d(TAG, "onLoadFinished: " + _latLng.toString());
+            iRecyclerView.openMap(_latLng);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<LatLng> loader) {
 
     }
 }
