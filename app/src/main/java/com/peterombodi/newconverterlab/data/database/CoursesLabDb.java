@@ -179,8 +179,7 @@ public class CoursesLabDb {
                 "[" + TBL_ORGANIZATIONS + "].[" + REGION_ID_COLUMN + "] " +
                 "= [" + TBL_REGIONS + "].[" + ID_COLUMN + "]";
         if (_filter!=null){
-            select=select+" WHERE  like(\"%"+_filter+"%\","+ADDRESS_COLUMN+") "+
-                    " || like(\"%"+_filter+"%\","+TITLE_COLUMN+")"+
+            select=select+" WHERE  like(\"%"+_filter+"%\","+TITLE_COLUMN+") "+
                     " || like(\"%"+_filter+"%\","+REGION_COLUMN+")"+
                     " || like(\"%"+_filter+"%\","+CITY_COLUMN+")";
         }

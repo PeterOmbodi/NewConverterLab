@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
     private IMainScreen.IPresenter presenter;
 
     private Fragment listFragment;
+    private SupportMapFragment mapFragment;
     private Fragment detailFragment;
     private View mLayout;
     private boolean firstRun = true;
@@ -102,6 +103,22 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
         }
     }
 
+    private void commitMapFragment(LatLng latLng) {
+        bankLatLng = latLng;
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack(Constants.TAG_MAP_FRAGMENT)
+                    .replace(R.id.fragment_container, mapFragment, MAP_FRAGMENT_TAG)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .commit();
+        }
+        mapFragment.getMapAsync(this);
+    }
+
+
     @Override
     public void openDetail(OrganizationRV _organizationRV) {
     }
@@ -113,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
 
     @Override
     public void openMap(LatLng _latLng) {
+        Log.d(TAG, "openMap _latLng =" + _latLng);
         if (_latLng != null) {
             bankLatLng = _latLng;
             Log.d(TAG, "bankLatLng = " + bankLatLng);
@@ -124,16 +142,18 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
     public void openCaller(String _phone) {
     }
 
-
     private void selectAction(final LatLng _latLng) {
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 this);
         // set dialog message
+        Log.d(TAG,"alertDialogBuilder set dialog message");
         alertDialogBuilder.setCancelable(true);
         alertDialogBuilder.setTitle(getResources().getString(R.string.select_action4map));
         alertDialogBuilder.setPositiveButton(getResources().getString(R.string.google_map),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
                         commitMapFragment(_latLng);
                     }
                 });
@@ -149,33 +169,16 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
                     public void onClick(DialogInterface dialog, int id) {
                         LatLngBounds latLngBounds = toBounds(_latLng, 100);
                         showPlace(latLngBounds);
-
+                        dialog.dismiss();
                     }
                 });
 
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
-
         // show it
         alertDialog.show();
     }
 
-    private void commitMapFragment(LatLng latLng) {
-        bankLatLng = latLng;
-        SupportMapFragment mapFragment = (SupportMapFragment)
-                getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
-        if (mapFragment == null) {
-            mapFragment = SupportMapFragment.newInstance();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack(Constants.TAG_MAP_FRAGMENT)
-                    .replace(R.id.fragment_container, mapFragment, MAP_FRAGMENT_TAG)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .commit();
-        }
-        mapFragment.getMapAsync(this);
-
-    }
 
     private void showLegal() {
         startActivity(new Intent(this, LegalNoticesActivity.class));

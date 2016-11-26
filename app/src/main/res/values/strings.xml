@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Converter Lab</string>
+    <string name="app_name">Converter Lab2</string>
     <string name="msg_no_network">Отсутствует мобильный интернет или WiFi подключение!</string>
     <string name="msg_successfully_load">Удачно загружены</string>
     <string name="address">Адрес:</string>
@@ -11,7 +11,7 @@
     <string name="call">Позвонить</string>
     <!--<string name="menu_use_gson">Use GSON parsing</string>-->
 
-    <string name="activity_main_title">Converter Lab</string>
+    <string name="activity_main_title">Converter Lab2</string>
     <!--<string name="using_json">using JSON</string>-->
     <!--<string name="using_gson">using GSON</string>-->
     <string name="menu_title1">Options</string>
@@ -30,4 +30,5 @@
     <string name="legal">Лицензия</string>
     <string name="download_in_progress">идет загрузка</string>
     <string name="download_complete">загрузка завершена</string>
+    <string name="msg_no_latlng">Не удалось получить координаты, повторите позже</string>
 </resources>

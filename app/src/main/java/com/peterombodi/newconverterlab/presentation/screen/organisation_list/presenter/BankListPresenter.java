@@ -65,14 +65,22 @@ public class BankListPresenter implements IListFragment.IPresenter, IListFragmen
 
     @Override
     public void onRefreshResponse(DataResponse _data) {
+        // TODO: 26.11.2016 здесь получаем колво
+
         Log.d(TAG, "onRefreshResponse >>>>--" + _data.getOrganizations().size());
 
     }
 
     @Override
-    public void onSaveData() {
-        Log.d(TAG, "onSaveData >>>>--");
+    public void onSavedData() {
+        Log.d(TAG, "onSavedData >>>>--");
         getBankList(null);
+    }
+
+    @Override
+    public void onSaveRefresh(int _itemNo, int _itemTotal) {
+        //Log.d(TAG,"_savedCount = "+_itemNo);
+        mView.showProgress(_itemNo,_itemTotal);
     }
 
     @Override

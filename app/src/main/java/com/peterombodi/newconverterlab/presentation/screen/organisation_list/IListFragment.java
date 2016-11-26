@@ -33,11 +33,13 @@ public interface IListFragment {
         void openLink(String _url);
         void openMap(String _region, String _city, String _address);
         void openCaller(String _phone);
+        void showProgress(int _itemNo, int _itemTotal);
     }
 
     interface ResponseCallback<V> {
         void onRefreshResponse(V _data);
-        void onSaveData();
+        void onSavedData();
+        void onSaveRefresh(int _itemNo, int _itemTotal);
         void onRefreshFailure();
     }
 

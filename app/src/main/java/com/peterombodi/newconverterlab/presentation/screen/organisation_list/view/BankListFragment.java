@@ -1,5 +1,6 @@
 package com.peterombodi.newconverterlab.presentation.screen.organisation_list.view;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -19,7 +20,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.model.LatLng;
 import com.peterombodi.newconverterlab.data.geo.GeoCoderLoader;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
@@ -34,10 +38,9 @@ import java.util.ArrayList;
  * Created by Admin on 22.11.2016.
  */
 
-public class BankListFragment extends Fragment implements IListFragment.IFragment, IListFragment.IView, SearchView.OnQueryTextListener,LoaderManager.LoaderCallbacks<LatLng>  {
+public class BankListFragment extends Fragment implements IListFragment.IFragment, IListFragment.IView, SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks<LatLng> {
 
     private static final String TAG = "BankListFragment";
-    private static final String MAP_FRAGMENT_TAG = "MAP_FRAGMENT_TAG";
     static final int LOADER_GEOCODER_ID = 1;
 
     private BankRVAdapter rvAdapter;
@@ -47,8 +50,7 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
     private IListFragment.IPresenter presenter;
     private IMainScreen.IRecyclerView iRecyclerView;
     private SwipeRefreshLayout swipeContainer;
-    private LatLng bankLatLng;
-//    private IActivity iActivity;
+    private ProgressDialog progressDialog;
 
     public BankListFragment() {
     }
@@ -58,11 +60,13 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_list, container, false);
         context = getActivity();
+
         presenter = new BankListPresenter();
         presenter.registerView(this);
 
-        setHasOptionsMenu(true);
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv_banks_FL);
 
+        setHasOptionsMenu(true);
         // Lookup the swipe container view
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer_FL);
 
@@ -82,11 +86,7 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
                     android.R.color.holo_red_light);
             //   swipeContainer.setEnabled(false);
         }
-
-
-        // TODO: 22.11.2016
-//        iActivity = (IActivity) getActivity();
-        return view;
+         return view;
     }
 
     @Override
@@ -104,36 +104,35 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
 
 
     @Override
-    public void onStop() {
-        super.onStop();
-        // TODO: 22.11.2016
-//        iActivity.setPullDownRefreshEnabled(Constants.TAG_BANK_LIST_FRAGMENT, false);
-    }
-
-    @Override
     public void onAttach(Context context) {
+        Log.d(TAG, "onAttach");
         iRecyclerView = (IMainScreen.IRecyclerView) context;
         super.onAttach(context);
     }
 
     @Override
     public void onDetach() {
+        Log.d(TAG, "onDetach");
         iRecyclerView = null;
         super.onDetach();
     }
 
     @Override
-    public void onDestroy() {
-
+    public void onDestroyView() {
+        Log.d(TAG, "onDestroyView");
         presenter.unRegisterView();
-        super.onDestroy();
+
+        if (getLoaderManager().getLoader(LOADER_GEOCODER_ID) != null) {
+            getLoaderManager().destroyLoader(LOADER_GEOCODER_ID);
+        }
+        super.onDestroyView();
     }
 
     @Override
     public void onResume() {
-        presenter.getBankList(null);
-        // TODO: 22.11.2016
-//        iActivity.setPullDownRefreshEnabled(Constants.TAG_BANK_LIST_FRAGMENT, true);
+        Log.d(TAG, "onResume");
+        //presenter.getBankList(null);
+        presenter.refreshData();
         super.onResume();
     }
 
@@ -158,12 +157,11 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
 
     @Override
     public void setRvArrayList(ArrayList<OrganizationRV> _rvArrayList) {
-        if (recyclerView != null) {
+        if (recyclerView != null && recyclerView.getLayoutManager() != null && recyclerView.getAdapter() != null) {
             rvAdapter.animateTo(_rvArrayList);
             recyclerView.scrollToPosition(0);
         } else {
-            recyclerView = (RecyclerView) view.findViewById(R.id.rv_banks_FL);
-            if (recyclerView != null) {
+           if (recyclerView != null) {
                 final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                 layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
                 recyclerView.setLayoutManager(layoutManager);
@@ -191,29 +189,27 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
     @Override
     public void openMap(String _region, String _city, String _address) {
 //        iRecyclerView.openMap(_latLng);
-
-        String strAddress = _region + "," + _city + "," + _address;
-        Log.d(TAG, "openMap: " + strAddress);
-        Bundle bundle = new Bundle();
-        bundle.putString(GeoCoderLoader.ARGS_ADDRESS, strAddress);
-
-        if (getLoaderManager().getLoader(LOADER_GEOCODER_ID)==null){
-            getLoaderManager().initLoader(LOADER_GEOCODER_ID, bundle, this);
-        } else {
-            getLoaderManager().restartLoader(LOADER_GEOCODER_ID, bundle, this);
+        if (checkPlayServices()) {
+            String strAddress = _region + "," + _city + "," + _address;
+            Log.d(TAG, "openMap: " + strAddress);
+            Bundle bundle = new Bundle();
+            bundle.putString(GeoCoderLoader.ARGS_ADDRESS, strAddress);
+            if (getLoaderManager().getLoader(LOADER_GEOCODER_ID) == null) {
+                getLoaderManager().initLoader(LOADER_GEOCODER_ID, bundle, this);
+            } else {
+                getLoaderManager().restartLoader(LOADER_GEOCODER_ID, bundle, this);
+            }
         }
-
     }
 
     @Override
     public void openCaller(String _phone) {
-
     }
 
 
     @Override
     public Loader<LatLng> onCreateLoader(int id, Bundle args) {
-                GeoCoderLoader loader = null;
+        GeoCoderLoader loader = null;
         if (id == LOADER_GEOCODER_ID) {
             loader = new GeoCoderLoader(context, args);
             Log.d(TAG, "onCreateLoader: " + loader.hashCode());
@@ -224,14 +220,46 @@ public class BankListFragment extends Fragment implements IListFragment.IFragmen
 
     @Override
     public void onLoadFinished(Loader<LatLng> loader, LatLng _latLng) {
-        if (_latLng!=null) {
-            Log.d(TAG, "onLoadFinished: " + _latLng.toString());
+        if (_latLng != null) {
             iRecyclerView.openMap(_latLng);
+        } else {
+            Toast.makeText(context, getResources().getString(R.string.msg_no_latlng), Toast.LENGTH_SHORT).show();
         }
     }
 
+
     @Override
     public void onLoaderReset(Loader<LatLng> loader) {
+        Log.d(TAG, "onLoaderReset: " + loader.hashCode());
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(getActivity());
+        if(result != ConnectionResult.SUCCESS) {
+            if(googleAPI.isUserResolvableError(result)) {
+                googleAPI.getErrorDialog(getActivity(), result,9999).show();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void showProgress(int _itemNo, int _itemTotal) {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage(getResources().getString(R.string.loading_data_msg));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setMax(_itemTotal);
+            progressDialog.setCancelable(false);
+            progressDialog.setIndeterminate(false);
+            progressDialog.show();
+        }
+        progressDialog.setProgress(_itemNo);
+        if (_itemNo==_itemTotal) progressDialog.cancel();
 
     }
+
+
 }

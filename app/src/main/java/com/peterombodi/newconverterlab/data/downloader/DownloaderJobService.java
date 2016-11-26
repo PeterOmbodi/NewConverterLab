@@ -9,6 +9,7 @@ import android.util.Log;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 import com.peterombodi.newconverterlab.data.api.DownloadData;
+import com.peterombodi.newconverterlab.data.api.DownloadDataImpl;
 
 public class DownloaderJobService extends JobService {
 
@@ -18,8 +19,8 @@ public class DownloaderJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters job) {
         Log.d(TAG,">>>>>>>>>>> onStartJob job.getTag()="+job.getTag()+" / job.getLifetime() ="+job.getLifetime());
-//        this.downloadData = new DownloadDataImpl();
-//        String ddd = downloadData.downloadData(null);
+        this.downloadData = new DownloadDataImpl();
+        downloadData.downloadData(null);
 
         return true;
     }

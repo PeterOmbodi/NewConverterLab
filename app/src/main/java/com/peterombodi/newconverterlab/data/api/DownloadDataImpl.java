@@ -1,7 +1,11 @@
 package com.peterombodi.newconverterlab.data.api;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.peterombodi.newconverterlab.data.database.CoursesLabDb;
@@ -10,6 +14,7 @@ import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.data.model.Organization;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.presentation.Application;
+import com.peterombodi.newconverterlab.presentation.R;
 import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
 
 import java.util.ArrayList;
@@ -42,12 +47,22 @@ import static com.peterombodi.newconverterlab.data.database.DBHelper.TITLE_COLUM
 public class DownloadDataImpl implements DownloadData {
 
     private static final String TAG = "DownloadDataImpl";
+
+    private static final int STATUS_DATA_UPDATE = 1;
+    private static final int STATUS_SAVE_REFRESH = 2;
+    private static final int STATUS_DATA_SAVED = 3;
+
+    private static final int REFRESH_ON = 20;
+    private static final int KEY_NOTIFICATION = 111;
     private Call<DataResponse> dataResponseCall;
     private Retrofit retrofit;
     private DataResponse dataResponse;
     private ArrayList<OrganizationRV> rvArrayList;
     private Handler handler;
     private IListFragment.ResponseCallback<DataResponse> callback;
+    private NotificationCompat.Builder mBuilder;
+    private NotificationManager mNotifyManager;
+    private Context context;
 
     public DownloadDataImpl() {
 
@@ -58,9 +73,30 @@ public class DownloadDataImpl implements DownloadData {
 
         handler = new Handler() {
             public void handleMessage(android.os.Message msg) {
-                callback.onSaveData();
-            };
+                switch (msg.what) {
+                    case STATUS_DATA_UPDATE:
+                        showNotification();
+                        break;
+                    case STATUS_SAVE_REFRESH:
+                        callback.onSaveRefresh(msg.arg1, msg.arg2);
+                        updateNotification(msg.arg1, msg.arg2);
+                        break;
+                    case STATUS_DATA_SAVED:
+                        callback.onSavedData();
+                        if (mBuilder != null) {
+                            mBuilder.setContentText(Application.getContext().getResources().getString(R.string.download_complete));
+                                    // Removes the progress bar
+                                   // .setProgress(0, 0, false);
+                            mNotifyManager.notify(KEY_NOTIFICATION, mBuilder.build());
+                        }
+                        break;
+                }
+
+            }
+
+            ;
         };
+        context = Application.getContext();
 
     }
 
@@ -76,14 +112,14 @@ public class DownloadDataImpl implements DownloadData {
             public void onResponse(Call<DataResponse> _call, Response<DataResponse> _response) {
                 DataResponse dataResponse = _response.body();
                 Log.d(TAG, "*-* " + "retrofit success:" + dataResponse.toString());
-                saveData(dataResponse,_callback);
+                saveData(dataResponse, _callback);
                 if (_callback != null) _callback.onRefreshResponse(dataResponse);
             }
 
             @Override
             public void onFailure(Call<DataResponse> _call, Throwable _t) {
                 Log.d(TAG, "*-* " + "retrofit onRefreshFailure:" + _t.toString());
-                if (_callback != null){
+                if (_callback != null) {
                     _callback.onRefreshFailure();
                 }
             }
@@ -92,17 +128,16 @@ public class DownloadDataImpl implements DownloadData {
         Log.d(TAG, "getData2");
     }
 
-    private void saveData(final DataResponse _dataResponse,final IListFragment.ResponseCallback _callback) {
+    private void saveData(final DataResponse _dataResponse, final IListFragment.ResponseCallback _callback) {
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 CoursesLabDb db;
                 db = new CoursesLabDb(Application.getContext());
                 db.open();
-
                 Cursor cursor = db.getLastUpdate();
                 cursor.moveToFirst();
-
                 String lastDBUpdate = (cursor.getCount() > 0) ?
                         cursor.getString(cursor.getColumnIndex(DATE_COLUMN)) : "new data";
                 String lastJsonUpdate = _dataResponse.getDate();
@@ -113,7 +148,11 @@ public class DownloadDataImpl implements DownloadData {
                 Log.d(TAG, "bankCount = " + bankCount);
 
                 if (!lastDBUpdate.equals(lastJsonUpdate)) {
+                    handler.sendEmptyMessage(STATUS_DATA_UPDATE);
                     db.setLastUpdate(lastJsonUpdate);
+                    Message msg;
+                    int i = 0;
+                    int size = _dataResponse.getOrganizations().size();
                     for (Organization organization : _dataResponse.getOrganizations()) {
                         String currentOrgId = organization.getId();
 
@@ -132,6 +171,11 @@ public class DownloadDataImpl implements DownloadData {
                         db.updateOrg(currentOrgId, organization.getTitle(), organization.getRegionId(),
                                 organization.getCityId(), organization.getPhone(), organization.getAddress(),
                                 organization.getLink(), lastJsonUpdate);
+                        i++;
+                        if (i % REFRESH_ON == 0 || i == 1 || i == size) {
+                            msg = handler.obtainMessage(STATUS_SAVE_REFRESH, i, size);
+                            handler.sendMessage(msg);
+                        }
 
                     }
                     dictionUpdate(db, TBL_CURRENCIES, _dataResponse.getCurrencies());
@@ -139,7 +183,7 @@ public class DownloadDataImpl implements DownloadData {
                     dictionUpdate(db, TBL_REGIONS, _dataResponse.getRegions());
                 }
                 db.close();
-                if (callback != null) handler.sendEmptyMessage(1);
+                if (callback != null) handler.sendEmptyMessage(STATUS_DATA_SAVED);
             }
         }).start();
     }
@@ -190,6 +234,30 @@ public class DownloadDataImpl implements DownloadData {
             Log.d(TAG, "--------- getDbData = 0");
         }
         return rvArrayList;
+    }
+
+    private void showNotification() {
+        Log.d(TAG, "test");
+        mNotifyManager =
+                (NotificationManager) Application.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(Application.getContext());
+        mBuilder.setContentTitle(Application.getContext().getResources().getString(R.string.app_name))
+                .setContentText(Application.getContext().getResources().getString(R.string.download_in_progress))
+                .setSmallIcon(R.drawable.ic_autorenew_white_36dp);
+
+
+    }
+
+
+    private void updateNotification(int _progress,int _total) {
+        if (mBuilder != null) {
+            mBuilder.setProgress(_total, _progress, false);
+            String contentText = context.getResources().getString(R.string.download_in_progress)
+                    +", "+_progress+" - "+_total;
+            mBuilder.setContentText(contentText);
+            mNotifyManager.notify(KEY_NOTIFICATION, mBuilder.build());
+           // sendProgress(progress);
+        }
     }
 
 }
