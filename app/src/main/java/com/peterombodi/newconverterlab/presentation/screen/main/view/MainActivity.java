@@ -1,8 +1,15 @@
 package com.peterombodi.newconverterlab.presentation.screen.main.view;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -37,10 +44,17 @@ import com.peterombodi.newconverterlab.presentation.screen.organisation_list.vie
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements IMainScreen.IView,IMainScreen.IRecyclerView,OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements IMainScreen.IView, IMainScreen.IRecyclerView, OnMapReadyCallback {
 
     private static final String TAG = "MainActivity";
     private static final String MAP_FRAGMENT_TAG = "MAP_FRAGMENT_TAG";
+    private static final int REQUEST_PERMISSIONS_CALL = 0;
+    // package for calling changed for API SDK>=21
+    private static final String CALL_PACKAGE = (Build.VERSION.SDK_INT >= 21) ?
+            "com.android.server.telecom" : "com.android.phone";
+    private static final String[] PERMISSIONS_CALL = {Manifest.permission.CALL_PHONE};
+    private static final String HTTP = "http://";
+    private static final String HTTPS = "https://";
 
     private IMainScreen.IPresenter presenter;
 
@@ -50,13 +64,16 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
     private View mLayout;
     private boolean firstRun = true;
     private LatLng bankLatLng;
-
+    private String phoneNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.activity_main);
+        if (savedInstanceState==null){
+            commitListFragment(null);
+        }
 
     }
 
@@ -74,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
         if (firstRun) {
 
 //            presenter.domainCallTest("call from view");
-            commitListFragment(null);
+            //commitListFragment(null);
             firstRun = false;
         }
 // TODO: 22.11.2016 pause for job?
@@ -125,7 +142,13 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
 
     @Override
     public void openLink(String _url) {
+
         Log.d(TAG, "openLink _url =" + _url);
+        if (!_url.startsWith(HTTP) && !_url.startsWith(HTTPS)) _url = HTTP + _url;
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(_url));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -140,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
 
     @Override
     public void openCaller(String _phone) {
+        phoneCall(_phone);
     }
 
     private void selectAction(final LatLng _latLng) {
@@ -147,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 this);
         // set dialog message
-        Log.d(TAG,"alertDialogBuilder set dialog message");
+        Log.d(TAG, "alertDialogBuilder set dialog message");
         alertDialogBuilder.setCancelable(true);
         alertDialogBuilder.setTitle(getResources().getString(R.string.select_action4map));
         alertDialogBuilder.setPositiveButton(getResources().getString(R.string.google_map),
@@ -222,4 +246,49 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
             googleMap.animateCamera(cameraUpdate);
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSIONS_CALL: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    phoneCall(phoneNumber);
+                } else {
+                    Snackbar.make(mLayout, getString(R.string.msg_permission_not_granted),
+                            Snackbar.LENGTH_INDEFINITE)
+                            .setAction(getString(R.string.ok), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                }
+                            })
+                            .show();
+
+                }
+            }
+        }
+    }
+
+    //check permission and make call
+    private void phoneCall(String _phoneNumber) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            phoneNumber = _phoneNumber;
+            ActivityCompat.requestPermissions(this, PERMISSIONS_CALL, REQUEST_PERMISSIONS_CALL);
+            return;
+        }
+        try {
+            // Call permissions have been granted. Calling.
+            Uri number = Uri.parse("tel:" + _phoneNumber);
+            Intent callIntent = new Intent(Intent.ACTION_CALL);
+            callIntent.setData(number);
+            callIntent.setPackage(CALL_PACKAGE);
+            startActivity(callIntent);
+        } catch (android.content.ActivityNotFoundException e) {
+            Log.e(TAG, "ActivityNotFoundException " + e.toString());
+        }
+    }
+
 }

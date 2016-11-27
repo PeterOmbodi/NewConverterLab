@@ -50,8 +50,9 @@ public class BankListPresenter implements IListFragment.IPresenter, IListFragmen
         DownloadData downloadData = new DownloadDataImpl();
         ArrayList<OrganizationRV> bankArrayList = downloadData.getDbData(_filter);
         Log.d(TAG, "getBankList >>>>--" + bankArrayList.size());
-        mView.setRvArrayList(bankArrayList);
         Log.d(TAG, "++++++++getBankList  mView isnull = " + (mView == null));
+        if (mView != null) mView.setRvArrayList(bankArrayList);
+
         return bankArrayList;
     }
 
@@ -72,15 +73,15 @@ public class BankListPresenter implements IListFragment.IPresenter, IListFragmen
     }
 
     @Override
-    public void onSavedData() {
-        Log.d(TAG, "onSavedData >>>>--");
+    public void onSavedData(int _records) {
+        Log.d(TAG, "onSavedData >>>>--" + _records + "/ mView isnull = " + (mView == null));
         getBankList(null);
     }
 
     @Override
     public void onSaveRefresh(int _itemNo, int _itemTotal) {
-        //Log.d(TAG,"_savedCount = "+_itemNo);
-        mView.showProgress(_itemNo,_itemTotal);
+        Log.d(TAG, "_savedCount = " + _itemNo + "/ mView isnull = " + (mView == null));
+        if (mView != null) mView.showProgress(_itemNo, _itemTotal);
     }
 
     @Override
@@ -106,7 +107,7 @@ public class BankListPresenter implements IListFragment.IPresenter, IListFragmen
 
     @Override
     public void openCaller(String _phone) {
-
+        mView.openCaller(_phone);
     }
 
 

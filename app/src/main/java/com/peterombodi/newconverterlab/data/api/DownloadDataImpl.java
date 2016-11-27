@@ -78,11 +78,11 @@ public class DownloadDataImpl implements DownloadData {
                         showNotification();
                         break;
                     case STATUS_SAVE_REFRESH:
-                        callback.onSaveRefresh(msg.arg1, msg.arg2);
+                        if (callback != null) callback.onSaveRefresh(msg.arg1, msg.arg2);
                         updateNotification(msg.arg1, msg.arg2);
                         break;
                     case STATUS_DATA_SAVED:
-                        callback.onSavedData();
+                        if (callback != null) callback.onSavedData(msg.arg1);
                         if (mBuilder != null) {
                             mBuilder.setContentText(Application.getContext().getResources().getString(R.string.download_complete));
                                     // Removes the progress bar
@@ -150,9 +150,7 @@ public class DownloadDataImpl implements DownloadData {
                 if (!lastDBUpdate.equals(lastJsonUpdate)) {
                     handler.sendEmptyMessage(STATUS_DATA_UPDATE);
                     db.setLastUpdate(lastJsonUpdate);
-                    Message msg;
                     int i = 0;
-                    int size = _dataResponse.getOrganizations().size();
                     for (Organization organization : _dataResponse.getOrganizations()) {
                         String currentOrgId = organization.getId();
 
@@ -172,8 +170,8 @@ public class DownloadDataImpl implements DownloadData {
                                 organization.getCityId(), organization.getPhone(), organization.getAddress(),
                                 organization.getLink(), lastJsonUpdate);
                         i++;
-                        if (i % REFRESH_ON == 0 || i == 1 || i == size) {
-                            msg = handler.obtainMessage(STATUS_SAVE_REFRESH, i, size);
+                        if (i % REFRESH_ON == 0 || i == 1 || i == bankCount) {
+                            Message msg = handler.obtainMessage(STATUS_SAVE_REFRESH, i, bankCount);
                             handler.sendMessage(msg);
                         }
 
@@ -183,7 +181,8 @@ public class DownloadDataImpl implements DownloadData {
                     dictionUpdate(db, TBL_REGIONS, _dataResponse.getRegions());
                 }
                 db.close();
-                if (callback != null) handler.sendEmptyMessage(STATUS_DATA_SAVED);
+                Message msg = handler.obtainMessage(STATUS_DATA_SAVED, bankCount,0);
+                handler.sendMessage(msg);
             }
         }).start();
     }
@@ -245,7 +244,6 @@ public class DownloadDataImpl implements DownloadData {
                 .setContentText(Application.getContext().getResources().getString(R.string.download_in_progress))
                 .setSmallIcon(R.drawable.ic_autorenew_white_36dp);
 
-
     }
 
 
@@ -256,7 +254,6 @@ public class DownloadDataImpl implements DownloadData {
                     +", "+_progress+" - "+_total;
             mBuilder.setContentText(contentText);
             mNotifyManager.notify(KEY_NOTIFICATION, mBuilder.build());
-           // sendProgress(progress);
         }
     }
 

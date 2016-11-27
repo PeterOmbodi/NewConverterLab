@@ -38,7 +38,7 @@ public interface IListFragment {
 
     interface ResponseCallback<V> {
         void onRefreshResponse(V _data);
-        void onSavedData();
+        void onSavedData(int _records);
         void onSaveRefresh(int _itemNo, int _itemTotal);
         void onRefreshFailure();
     }
