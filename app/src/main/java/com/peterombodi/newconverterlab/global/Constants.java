@@ -5,6 +5,7 @@ package com.peterombodi.newconverterlab.global;
  */
 
 public class Constants {
+    public static final boolean DEBUG_MODE = true;
     public static final String PARAM_ACTION = "ACTION";
     public static final String PARAM_PINTENT = "pendingIntent";
     public static final String PARAM_RESULT = "result";
@@ -29,4 +30,5 @@ public class Constants {
     public static final String FORMAT_DATE = "yyyy-MM-dd HH:mm";
 
     public static final java.lang.String KEY_ADDRESS = "address";
+    public static final String PARAM_BASE_URL_FINANCE_UA = "http://resources.finance.ua";
 }

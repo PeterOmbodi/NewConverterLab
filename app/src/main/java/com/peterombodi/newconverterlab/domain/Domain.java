@@ -7,6 +7,7 @@ import com.peterombodi.newconverterlab.presentation.screen.organisation_list.ILi
  */
 
 public interface Domain {
-    String testString(String test);
     void getData(IListFragment.ResponseCallback _callback);
+    void releaseCallback();
+    void setCallback(IListFragment.ResponseCallback _callback);
 }

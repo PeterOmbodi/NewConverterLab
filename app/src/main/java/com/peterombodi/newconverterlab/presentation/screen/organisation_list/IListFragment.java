@@ -18,8 +18,10 @@ public interface IListFragment {
     interface IPresenter {
         void registerView(IListFragment.IView _view);
         void unRegisterView();
-        ArrayList<OrganizationRV> getBankList(String _filter);
+
+        void setRvArrayList(ArrayList<OrganizationRV> _rvArrayList);
         void refreshData();
+
         void openDetail(OrganizationRV _organizationRV);
         void openLink(String _url);
         void openMap(String _region, String _city, String _address);
@@ -34,6 +36,7 @@ public interface IListFragment {
         void openMap(String _region, String _city, String _address);
         void openCaller(String _phone);
         void showProgress(int _itemNo, int _itemTotal);
+        void getDbData(String _filter);
     }
 
     interface ResponseCallback<V> {

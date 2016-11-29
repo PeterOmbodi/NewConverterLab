@@ -8,15 +8,22 @@ import com.peterombodi.newconverterlab.presentation.screen.organisation_list.ILi
 public class DomainImpl implements Domain {
 
     private static final String TAG = "DomainImpl";
+    private DownloadData downloadData;
 
-    @Override
-    public String testString(String _test) {
-        return _test + ". answer from -" + this.getClass().getName();
-    }
-
-    @Override
+     @Override
     public void getData(IListFragment.ResponseCallback _callback) {
-        DownloadData downloadData = new DownloadDataImpl();
+        downloadData = new DownloadDataImpl();
         downloadData.downloadData(_callback);
     }
+
+    @Override
+    public void releaseCallback() {
+        if (downloadData!=null) downloadData.releaseCallback();
+    }
+
+    @Override
+    public void setCallback(IListFragment.ResponseCallback _callback) {
+        if (downloadData!=null) downloadData.setCallback(_callback);
+    }
+
 }

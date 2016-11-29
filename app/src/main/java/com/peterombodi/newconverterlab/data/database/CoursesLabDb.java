@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
+import com.peterombodi.newconverterlab.global.Constants;
+
 import java.util.Locale;
 
 import static com.peterombodi.newconverterlab.data.database.DBHelper.*;
@@ -78,15 +80,20 @@ public class CoursesLabDb {
 
     // getting last update
     public Cursor getLastUpdate() {
-        return mDB.query(TBL_UPDATES, null, null, null, null, null, null);
+        return mDB.query(TBL_UPDATES, null, null, null, null, null, DATE_COLUMN + " DESC");
     }
 
     // set last update
-    public void setLastUpdate(String _date) {
+    public void setLastUpdate(String _date, boolean _fromUI) {
         ContentValues cv = new ContentValues();
         cv.put(DATE_COLUMN, _date);
-        int updCount = mDB.update(TBL_UPDATES, cv, null, null);
-        if (updCount == 0) mDB.insert(TBL_UPDATES, null, cv);
+        cv.put(UPDATE_FROM_UI_COLUMN, _fromUI ? 1 : 0);
+        if (Constants.DEBUG_MODE) {
+            mDB.insert(TBL_UPDATES, null, cv);
+        } else {
+            int updCount = mDB.update(TBL_UPDATES, cv, null, null);
+            if (updCount == 0) mDB.insert(TBL_UPDATES, null, cv);
+        }
     }
 
     public void updateCourse(String orgId, String currencyId, String ask, String bid) {
@@ -178,10 +185,10 @@ public class CoursesLabDb {
                 "INNER JOIN [" + TBL_REGIONS + "] ON " +
                 "[" + TBL_ORGANIZATIONS + "].[" + REGION_ID_COLUMN + "] " +
                 "= [" + TBL_REGIONS + "].[" + ID_COLUMN + "]";
-        if (_filter!=null){
-            select=select+" WHERE  like(\"%"+_filter+"%\","+TITLE_COLUMN+") "+
-                    " || like(\"%"+_filter+"%\","+REGION_COLUMN+")"+
-                    " || like(\"%"+_filter+"%\","+CITY_COLUMN+")";
+        if (_filter != null) {
+            select = select + " WHERE  like(\"%" + _filter + "%\"," + TITLE_COLUMN + ") " +
+                    " || like(\"%" + _filter + "%\"," + REGION_COLUMN + ")" +
+                    " || like(\"%" + _filter + "%\"," + CITY_COLUMN + ")";
         }
 
         return mDB.rawQuery(select, null);

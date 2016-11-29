@@ -31,6 +31,12 @@ public class GeoCoderLoader extends AsyncTaskLoader<LatLng> {
     }
 
     @Override
+    protected void onStartLoading() {
+        forceLoad();
+        super.onStartLoading();
+    }
+
+    @Override
     public LatLng loadInBackground() {
 
         Log.d(TAG,"loadInBackground 1 strAddress = "+strAddress);

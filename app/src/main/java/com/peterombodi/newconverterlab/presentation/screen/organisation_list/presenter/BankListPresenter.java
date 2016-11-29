@@ -4,8 +4,6 @@ import android.Manifest;
 import android.os.Build;
 import android.util.Log;
 
-import com.peterombodi.newconverterlab.data.api.DownloadData;
-import com.peterombodi.newconverterlab.data.api.DownloadDataImpl;
 import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.domain.Domain;
@@ -30,11 +28,14 @@ public class BankListPresenter implements IListFragment.IPresenter, IListFragmen
     private static final String MAP_FRAGMENT_TAG = "MAP_FRAGMENT_TAG";
 
     private IListFragment.IView mView;
+    private Domain mDomain;
 
     @Override
     public void registerView(IListFragment.IView _view) {
-        Log.d(TAG, "------------------ registerView");
+
         this.mView = _view;
+        Log.d(TAG, "------------------ registerView mView isnull = " + (mView == null));
+        if (mDomain!=null) mDomain.setCallback(this);
     }
 
 
@@ -42,45 +43,40 @@ public class BankListPresenter implements IListFragment.IPresenter, IListFragmen
     public void unRegisterView() {
         Log.d(TAG, "------------------ unRegisterView");
         mView = null;
+       if (mDomain!=null) mDomain.releaseCallback();
     }
 
     @Override
-    public ArrayList<OrganizationRV> getBankList(String _filter) {
-        Log.d(TAG, "getBankList >>>>--");
-        DownloadData downloadData = new DownloadDataImpl();
-        ArrayList<OrganizationRV> bankArrayList = downloadData.getDbData(_filter);
-        Log.d(TAG, "getBankList >>>>--" + bankArrayList.size());
-        Log.d(TAG, "++++++++getBankList  mView isnull = " + (mView == null));
-        if (mView != null) mView.setRvArrayList(bankArrayList);
-
-        return bankArrayList;
+    public void setRvArrayList(ArrayList<OrganizationRV> _rvArrayList) {
+        Log.d(TAG,"------------------ setRvArrayList _rvArrayList.size()="+_rvArrayList.size());
+        if (mView != null) mView.setRvArrayList(_rvArrayList);
     }
 
     @Override
     public void refreshData() {
-        Domain mDomain = new DomainImpl();
+        mDomain = new DomainImpl();
         mDomain.getData(this);
-        Log.d(TAG, "++++++++ refreshData  mView isnull = " + (mView == null));
+        Log.d(TAG, "------------------ refreshData  mView isnull = " + (mView == null));
     }
 
 
     @Override
     public void onRefreshResponse(DataResponse _data) {
         // TODO: 26.11.2016 здесь получаем колво
-
-        Log.d(TAG, "onRefreshResponse >>>>--" + _data.getOrganizations().size());
-
+        Log.d(TAG, "onRefreshResponse >>>>------------------" + _data.getOrganizations().size());
     }
 
     @Override
     public void onSavedData(int _records) {
-        Log.d(TAG, "onSavedData >>>>--" + _records + "/ mView isnull = " + (mView == null));
-        getBankList(null);
+        Log.d(TAG, "onSavedData >>>>------------------" + _records + "/ mView isnull = " + (mView == null));
+        //getBankList(null);
+        if (mView != null) mView.getDbData(null);
+
     }
 
     @Override
     public void onSaveRefresh(int _itemNo, int _itemTotal) {
-        Log.d(TAG, "_savedCount = " + _itemNo + "/ mView isnull = " + (mView == null));
+        Log.d(TAG, "------------------ _savedCount = " + _itemNo + "/ mView isnull = " + (mView == null));
         if (mView != null) mView.showProgress(_itemNo, _itemTotal);
     }
 
