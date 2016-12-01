@@ -28,7 +28,7 @@ public class BankRVHolders extends RecyclerView.ViewHolder implements View.OnCli
     public TextView tvDateShort;
 
     private IListFragment.IPresenter iRecyclerView;
-//    private IRecyclerView iRecyclerView;
+//    private IGetAction iRecyclerView;
 public OrganizationRV organizationRV;
     private ImageButton ibLink;
     private ImageButton ibMap;
@@ -72,7 +72,9 @@ public OrganizationRV organizationRV;
             case R.id.ib_map_ILO:
                 iRecyclerView.openMap(this.tvRegion.getText().toString(),
                         this.tvCity.getText().toString(),
-                        this.tvAddress.getText().toString());
+                        this.tvAddress.getText().toString(),
+                        this.tvName.getText().toString()
+                );
                 break;
             case R.id.ib_phone_ILO:
                 iRecyclerView.openCaller(this.tvPhone.getText().toString());

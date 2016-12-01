@@ -31,4 +31,5 @@ public class Constants {
 
     public static final java.lang.String KEY_ADDRESS = "address";
     public static final String PARAM_BASE_URL_FINANCE_UA = "http://resources.finance.ua";
+    public static final String KEY_LAT_LNG = "LatLng";
 }

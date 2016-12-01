@@ -1,6 +1,7 @@
 package com.peterombodi.newconverterlab.presentation.screen.main;
 
-import com.google.android.gms.maps.model.LatLng;
+import android.location.Address;
+
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 
 import java.util.ArrayList;
@@ -32,12 +33,12 @@ public interface IMainScreen {
         void onFailure();
     }
 
-    interface IRecyclerView {
+    interface IGetAction {
         void openDetail(OrganizationRV _organizationRV);
 
         void openLink(String _url);
 
-        void openMap(LatLng _latLng);
+        void openMap(Address _address);
 
         void openCaller(String _phone);
     }

@@ -10,9 +10,9 @@ import java.util.ArrayList;
 
 public interface IListFragment {
 
-    interface IFragment {
-        void onRefreshRV(ArrayList<OrganizationRV> _arrayList);
-    }
+//    interface IFragment {
+//        void onRefreshRV(ArrayList<OrganizationRV> _arrayList);
+//    }
 
 
     interface IPresenter {
@@ -24,7 +24,7 @@ public interface IListFragment {
 
         void openDetail(OrganizationRV _organizationRV);
         void openLink(String _url);
-        void openMap(String _region, String _city, String _address);
+        void openMap(String _region, String _city, String _address, String _title);
         void openCaller(String _phone);
 
     }
@@ -33,7 +33,7 @@ public interface IListFragment {
         void setRvArrayList(ArrayList<OrganizationRV> _rvArrayList);
         void openDetail(OrganizationRV _organizationRV);
         void openLink(String _url);
-        void openMap(String _region, String _city, String _address);
+        void openMap(String _region, String _city, String _address, String _title);
         void openCaller(String _phone);
         void showProgress(int _itemNo, int _itemTotal);
         void getDbData(String _filter);

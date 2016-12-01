@@ -12,13 +12,11 @@ import com.peterombodi.newconverterlab.data.database.CoursesLabDb;
 import com.peterombodi.newconverterlab.data.model.Currency;
 import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.data.model.Organization;
-import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.global.Constants;
 import com.peterombodi.newconverterlab.presentation.Application;
 import com.peterombodi.newconverterlab.presentation.R;
 import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -48,15 +46,16 @@ public class DownloadDataImpl implements DownloadData {
     private static final int STATUS_DATA_SAVED = 3;
 
     private static final int REFRESH_ON = 20;
+    private static final boolean USE_TRANSACTION = true;
     private static final int KEY_NOTIFICATION = 111;
-    private Call<DataResponse> dataResponseCall;
     private Retrofit retrofit;
-    private DataResponse dataResponse;
-    private ArrayList<OrganizationRV> rvArrayList;
+//    private DataResponse dataResponse;
+//    private ArrayList<OrganizationRV> rvArrayList;
     private IListFragment.ResponseCallback<DataResponse> callback;
     private NotificationCompat.Builder mBuilder;
     private NotificationManager mNotifyManager;
     private Context context;
+    private Handler handler;
 
     public DownloadDataImpl() {
 
@@ -73,7 +72,7 @@ public class DownloadDataImpl implements DownloadData {
         Log.d(TAG, "getData1");
         callback = _callback;
         ApiRest getData = retrofit.create(ApiRest.class);
-        dataResponseCall = getData.connect();
+        Call<DataResponse> dataResponseCall = getData.connect();
         dataResponseCall.enqueue(new Callback<DataResponse>() {
 
             @Override
@@ -96,20 +95,24 @@ public class DownloadDataImpl implements DownloadData {
         Log.d(TAG, "getData2");
     }
 
-    @Override
-    public void releaseCallback() {
-        Log.d(TAG,">>>>> releaseCallback");
-        this.callback = null;
-    }
 
     @Override
     public void setCallback(IListFragment.ResponseCallback<DataResponse> _callback) {
-        Log.d(TAG,">>>>> setCallback");
+        Log.d(TAG, ">>>>>------- setCallback");
         this.callback = _callback;
+//        setHandler();
+    }
+
+    @Override
+    public void releaseCallback() {
+        Log.d(TAG, ">>>>>-------- releaseCallback");
+        this.callback = null;
+//        this.handler = null;
     }
 
 
     private void saveData(final DataResponse _dataResponse, final IListFragment.ResponseCallback _callback) {
+        if (_callback != null) setHandler();
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new RunnableSaveTask(_dataResponse, _callback) {
         });
@@ -143,11 +146,8 @@ public class DownloadDataImpl implements DownloadData {
         }
     }
 
-    private class RunnableSaveTask implements Runnable {
-
-        DataResponse _dataResponse;
-        IListFragment.ResponseCallback _callback;
-        Handler handler = new Handler() {
+    private void setHandler() {
+        handler = new Handler() {
             public void handleMessage(android.os.Message msg) {
                 switch (msg.what) {
                     case STATUS_DATA_UPDATE:
@@ -155,6 +155,7 @@ public class DownloadDataImpl implements DownloadData {
                         break;
                     case STATUS_SAVE_REFRESH:
                         if (callback != null) callback.onSaveRefresh(msg.arg1, msg.arg2);
+                        Log.d(TAG, "-------- callback.onSaveRefresh" + msg.arg1);
                         updateNotification(msg.arg1, msg.arg2);
                         break;
                     case STATUS_DATA_SAVED:
@@ -169,6 +170,12 @@ public class DownloadDataImpl implements DownloadData {
                 }
             }
         };
+    }
+
+    private class RunnableSaveTask implements Runnable {
+
+        DataResponse _dataResponse;
+        IListFragment.ResponseCallback _callback;
 
 
         RunnableSaveTask(DataResponse _dataResponse, IListFragment.ResponseCallback _callback) {
@@ -181,6 +188,7 @@ public class DownloadDataImpl implements DownloadData {
             CoursesLabDb db;
             db = new CoursesLabDb(Application.getContext());
             db.open();
+            if (USE_TRANSACTION) db.beginTransaction();
             Cursor cursor = db.getLastUpdate();
             cursor.moveToFirst();
             String lastDBUpdate = (cursor.getCount() > 0) ?
@@ -193,7 +201,7 @@ public class DownloadDataImpl implements DownloadData {
             Log.d(TAG, "bankCount = " + bankCount);
 
             if (!lastDBUpdate.equals(lastJsonUpdate)) {
-                handler.sendEmptyMessage(STATUS_DATA_UPDATE);
+                if (handler != null) handler.sendEmptyMessage(STATUS_DATA_UPDATE);
                 db.setLastUpdate(lastJsonUpdate, (_callback != null));
                 int i = 0;
                 for (Organization organization : _dataResponse.getOrganizations()) {
@@ -216,7 +224,7 @@ public class DownloadDataImpl implements DownloadData {
                             organization.getLink(), lastJsonUpdate);
 
                     i++;
-                    if (i % REFRESH_ON == 0 || i == 1 || i == bankCount) {
+                    if ((i % REFRESH_ON == 0 || i == 1 || i == bankCount) && (handler != null)) {
                         Message msg = handler.obtainMessage(STATUS_SAVE_REFRESH, i, bankCount);
                         handler.sendMessage(msg);
                     }
@@ -226,11 +234,18 @@ public class DownloadDataImpl implements DownloadData {
                 dictionUpdate(db, TBL_CITIES, _dataResponse.getCities());
                 dictionUpdate(db, TBL_REGIONS, _dataResponse.getRegions());
             }
+
+            if (USE_TRANSACTION) db.setTransactionSuccessful();
+            if (USE_TRANSACTION) db.endTransaction();
+
             db.close();
-            Message msg = handler.obtainMessage(STATUS_DATA_SAVED, bankCount, 0);
-            handler.sendMessage(msg);
+            if (handler != null) {
+                Message msg = handler.obtainMessage(STATUS_DATA_SAVED, bankCount, 0);
+                handler.sendMessage(msg);
+            }
         }
     }
+
 
 }
 

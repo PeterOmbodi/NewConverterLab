@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,16 +23,8 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.SphericalUtil;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.global.Constants;
@@ -39,12 +32,13 @@ import com.peterombodi.newconverterlab.presentation.R;
 import com.peterombodi.newconverterlab.presentation.screen.legalNotice.LegalNoticesActivity;
 import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
 import com.peterombodi.newconverterlab.presentation.screen.main.presenter.MainScreenPresenter;
+import com.peterombodi.newconverterlab.presentation.screen.mapFragment.MapViewFragment;
 import com.peterombodi.newconverterlab.presentation.screen.organisation_list.view.BankListFragment;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements IMainScreen.IView, IMainScreen.IRecyclerView, OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements IMainScreen.IView, IMainScreen.IGetAction {
 
     private static final String TAG = "MainActivity";
     private static final String MAP_FRAGMENT_TAG = "MAP_FRAGMENT_TAG";
@@ -59,7 +53,8 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
     private IMainScreen.IPresenter presenter;
 
     private Fragment listFragment;
-    private SupportMapFragment mapFragment;
+    //private SupportMapFragment mapFragment;
+    private Fragment mapFragment;
     private Fragment detailFragment;
     private View mLayout;
     private boolean firstRun = true;
@@ -71,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.activity_main);
-        if (savedInstanceState==null){
+        if (savedInstanceState == null) {
             commitListFragment(null);
         }
 
@@ -120,19 +115,19 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
         }
     }
 
-    private void commitMapFragment(LatLng latLng) {
-        bankLatLng = latLng;
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
-        if (mapFragment == null) {
-            mapFragment = SupportMapFragment.newInstance();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack(Constants.TAG_MAP_FRAGMENT)
-                    .replace(R.id.fragment_container, mapFragment, MAP_FRAGMENT_TAG)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .commit();
-        }
-        mapFragment.getMapAsync(this);
+    private void commitMapFragment(Address _address) {
+        mapFragment = new MapViewFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.KEY_ADDRESS, _address);
+        mapFragment.setArguments(bundle);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(MAP_FRAGMENT_TAG)
+                .replace(R.id.fragment_container, mapFragment, MAP_FRAGMENT_TAG)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
     }
 
 
@@ -152,12 +147,12 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
     }
 
     @Override
-    public void openMap(LatLng _latLng) {
-        Log.d(TAG, "openMap _latLng =" + _latLng);
-        if (_latLng != null) {
-            bankLatLng = _latLng;
-            Log.d(TAG, "bankLatLng = " + bankLatLng);
-            selectAction(_latLng);
+    public void openMap(Address _address) {
+        Log.d(TAG, "openMap _address =" + _address.toString());
+        if (_address != null) {
+//            bankLatLng = _latLng;
+//            Log.d(TAG, "bankLatLng = " + bankLatLng);
+            selectAction(_address);
         }
     }
 
@@ -166,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
         phoneCall(_phone);
     }
 
-    private void selectAction(final LatLng _latLng) {
+    private void selectAction(final Address _address) {
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 this);
@@ -178,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();
-                        commitMapFragment(_latLng);
+                        commitMapFragment(_address);
                     }
                 });
         alertDialogBuilder.setNeutralButton(getResources().getString(R.string.legal),
@@ -191,7 +186,8 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
         alertDialogBuilder.setNegativeButton(getResources().getString(R.string.google_place),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        LatLngBounds latLngBounds = toBounds(_latLng, 100);
+                        LatLngBounds latLngBounds = toBounds(
+                                new LatLng(_address.getLatitude(), _address.getLongitude()), 100);
                         showPlace(latLngBounds);
                         dialog.dismiss();
                     }
@@ -229,21 +225,6 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
             Toast.makeText(this, "Google Play Services is not available.",
                     Toast.LENGTH_LONG)
                     .show();
-        }
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        if (bankLatLng != null) {
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(bankLatLng)
-                    .zoom(17)
-                    .bearing(0)
-                    .tilt(20)
-                    .build();
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
-            Marker marker = googleMap.addMarker(new MarkerOptions().position(bankLatLng).title(""));
-            googleMap.animateCamera(cameraUpdate);
         }
     }
 

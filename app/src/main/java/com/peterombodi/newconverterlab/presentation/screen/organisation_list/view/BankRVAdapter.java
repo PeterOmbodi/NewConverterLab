@@ -29,7 +29,7 @@ public class BankRVAdapter extends RecyclerView.Adapter<BankRVHolders> {
     private static final String TAG = "BankRVAdapter";
     private List<OrganizationRV> itemList;
     private IListFragment.IPresenter iRecyclerView;
-//    private IRecyclerView iRecyclerView;
+//    private IGetAction iRecyclerView;
 //    private Context context;
     private Date yesterday = new Date(System.currentTimeMillis() - 1000L * 60L * 60L * 24L);
 
@@ -41,7 +41,7 @@ public class BankRVAdapter extends RecyclerView.Adapter<BankRVHolders> {
 
 //    public BankRVAdapter(Context context, List<OrganizationRV> itemList) {
 //        this.itemList = itemList;
-//        this.iRecyclerView = (IRecyclerView) context;
+//        this.iRecyclerView = (IGetAction) context;
 //    }
 
 

@@ -32,10 +32,10 @@ public class BankListPresenter implements IListFragment.IPresenter, IListFragmen
 
     @Override
     public void registerView(IListFragment.IView _view) {
-
         this.mView = _view;
         Log.d(TAG, "------------------ registerView mView isnull = " + (mView == null));
         if (mDomain!=null) mDomain.setCallback(this);
+
     }
 
 
@@ -97,8 +97,8 @@ public class BankListPresenter implements IListFragment.IPresenter, IListFragmen
     }
 
     @Override
-    public void openMap(String _region, String _city, String _address) {
-        mView.openMap(_region, _city, _address);
+    public void openMap(String _region, String _city, String _address, String _title) {
+        mView.openMap(_region, _city, _address, _title);
     }
 
     @Override

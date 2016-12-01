@@ -33,6 +33,22 @@ public class CoursesLabDb {
         mDB = mDBHelper.getWritableDatabase();
     }
 
+    // begin Transaction
+    public void beginTransaction() {
+        mDB.beginTransaction();
+    }
+
+    // end Transaction
+    public void endTransaction() {
+        mDB.endTransaction();
+    }
+
+    // set Transaction Successful
+    public void setTransactionSuccessful() {
+        mDB.setTransactionSuccessful() ;
+    }
+
+
     // close connect
     public void close() {
         if (mDBHelper != null) mDBHelper.close();
