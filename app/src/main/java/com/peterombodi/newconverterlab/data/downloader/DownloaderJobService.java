@@ -20,7 +20,7 @@ public class DownloaderJobService extends JobService {
     public boolean onStartJob(JobParameters job) {
         Log.d(TAG,">>>>>>>>>>> onStartJob job.getTag()="+job.getTag()+" / job.getLifetime() ="+job.getLifetime());
         this.downloadData = new DownloadDataImpl();
-        downloadData.downloadData(null);
+        downloadData.downloadData(null,null);
 
         return true;
     }

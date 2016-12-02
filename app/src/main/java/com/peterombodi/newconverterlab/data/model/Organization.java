@@ -17,6 +17,7 @@ public class Organization {
     private String dateUpdate;
     private String datePrevUpdate;
     private HashMap<String, Currency> currencies;
+
     public HashMap<String, Currency> getCurrencies() {
         return currencies;
     }

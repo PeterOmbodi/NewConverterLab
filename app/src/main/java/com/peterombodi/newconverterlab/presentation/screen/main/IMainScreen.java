@@ -1,7 +1,5 @@
 package com.peterombodi.newconverterlab.presentation.screen.main;
 
-import android.location.Address;
-
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 
 import java.util.ArrayList;
@@ -38,7 +36,7 @@ public interface IMainScreen {
 
         void openLink(String _url);
 
-        void openMap(Address _address);
+        void openMap(String _region, String _city, String _address, String _title);
 
         void openCaller(String _phone);
     }

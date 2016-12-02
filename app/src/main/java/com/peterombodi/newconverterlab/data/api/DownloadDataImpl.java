@@ -15,7 +15,7 @@ import com.peterombodi.newconverterlab.data.model.Organization;
 import com.peterombodi.newconverterlab.global.Constants;
 import com.peterombodi.newconverterlab.presentation.Application;
 import com.peterombodi.newconverterlab.presentation.R;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
+import com.peterombodi.newconverterlab.presentation.screen.base.ResponseCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,9 +49,9 @@ public class DownloadDataImpl implements DownloadData {
     private static final boolean USE_TRANSACTION = true;
     private static final int KEY_NOTIFICATION = 111;
     private Retrofit retrofit;
-//    private DataResponse dataResponse;
-//    private ArrayList<OrganizationRV> rvArrayList;
-    private IListFragment.ResponseCallback<DataResponse> callback;
+    private ResponseCallback<DataResponse> callback;
+    private String bankId;
+
     private NotificationCompat.Builder mBuilder;
     private NotificationManager mNotifyManager;
     private Context context;
@@ -68,9 +68,11 @@ public class DownloadDataImpl implements DownloadData {
     }
 
     @Override
-    public void downloadData(final IListFragment.ResponseCallback<DataResponse> _callback) {
-        Log.d(TAG, "getData1");
+    public void downloadData(final ResponseCallback<DataResponse> _callback, final String _bankId) {
+
         callback = _callback;
+        bankId = _bankId;
+
         ApiRest getData = retrofit.create(ApiRest.class);
         Call<DataResponse> dataResponseCall = getData.connect();
         dataResponseCall.enqueue(new Callback<DataResponse>() {
@@ -79,25 +81,24 @@ public class DownloadDataImpl implements DownloadData {
             public void onResponse(Call<DataResponse> _call, Response<DataResponse> _response) {
                 DataResponse dataResponse = _response.body();
                 Log.d(TAG, "*-* " + "retrofit success:" + dataResponse.toString());
-                saveData(dataResponse, _callback);
-                if (_callback != null) _callback.onRefreshResponse(dataResponse);
+                saveData(dataResponse, callback, _bankId);
+
+                if (callback != null) callback.onRefreshResponse(dataResponse);
+
             }
 
             @Override
             public void onFailure(Call<DataResponse> _call, Throwable _t) {
                 Log.d(TAG, "*-* " + "retrofit onRefreshFailure:" + _t.toString());
-                if (_callback != null) {
-                    _callback.onRefreshFailure();
+                if (callback != null) {
+                    callback.onRefreshFailure();
                 }
             }
         });
-
-        Log.d(TAG, "getData2");
     }
 
 
-    @Override
-    public void setCallback(IListFragment.ResponseCallback<DataResponse> _callback) {
+    public void setCallback(ResponseCallback<DataResponse> _callback) {
         Log.d(TAG, ">>>>>------- setCallback");
         this.callback = _callback;
 //        setHandler();
@@ -111,10 +112,10 @@ public class DownloadDataImpl implements DownloadData {
     }
 
 
-    private void saveData(final DataResponse _dataResponse, final IListFragment.ResponseCallback _callback) {
+    private void saveData(final DataResponse _dataResponse, final ResponseCallback<DataResponse> _callback, String _bankId) {
         if (_callback != null) setHandler();
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new RunnableSaveTask(_dataResponse, _callback) {
+        executor.execute(new RunnableSaveTask(_dataResponse, _callback, _bankId) {
         });
     }
 
@@ -159,7 +160,7 @@ public class DownloadDataImpl implements DownloadData {
                         updateNotification(msg.arg1, msg.arg2);
                         break;
                     case STATUS_DATA_SAVED:
-                        if (callback != null) callback.onSavedData(msg.arg1);
+                        if (callback != null) callback.onSavedData(msg.arg1,bankId);
                         if (mBuilder != null) {
                             mBuilder.setContentText(Application.getContext().getResources().getString(R.string.download_complete));
                             // Removes the progress bar
@@ -174,13 +175,17 @@ public class DownloadDataImpl implements DownloadData {
 
     private class RunnableSaveTask implements Runnable {
 
-        DataResponse _dataResponse;
-        IListFragment.ResponseCallback _callback;
+        DataResponse dataResponse;
+        ResponseCallback<DataResponse> callback;
+        String bankId;
 
+        private final boolean ALL_NEED_TO_SAVE;
 
-        RunnableSaveTask(DataResponse _dataResponse, IListFragment.ResponseCallback _callback) {
-            this._dataResponse = _dataResponse;
-            this._callback = _callback;
+        RunnableSaveTask(DataResponse _dataResponse, ResponseCallback<DataResponse> _callback, String _bankId) {
+            this.dataResponse = _dataResponse;
+            this.callback = _callback;
+            this.bankId = _bankId;
+            ALL_NEED_TO_SAVE = (_bankId == null);
         }
 
         @Override
@@ -193,8 +198,8 @@ public class DownloadDataImpl implements DownloadData {
             cursor.moveToFirst();
             String lastDBUpdate = (cursor.getCount() > 0) ?
                     cursor.getString(cursor.getColumnIndex(DATE_COLUMN)) : "new data";
-            String lastJsonUpdate = _dataResponse.getDate();
-            int bankCount = _dataResponse.getOrganizations().size();
+            String lastJsonUpdate = dataResponse.getDate();
+            int bankCount = dataResponse.getOrganizations().size();
 
             Log.d(TAG, "lastDBUpdate = " + lastDBUpdate);
             Log.d(TAG, "lastJsonUpdate = " + lastJsonUpdate);
@@ -202,37 +207,38 @@ public class DownloadDataImpl implements DownloadData {
 
             if (!lastDBUpdate.equals(lastJsonUpdate)) {
                 if (handler != null) handler.sendEmptyMessage(STATUS_DATA_UPDATE);
-                db.setLastUpdate(lastJsonUpdate, (_callback != null));
+                db.setLastUpdate(lastJsonUpdate, (callback != null));
                 int i = 0;
-                for (Organization organization : _dataResponse.getOrganizations()) {
+                for (Organization organization : dataResponse.getOrganizations()) {
                     String currentOrgId = organization.getId();
+                    if (ALL_NEED_TO_SAVE || currentOrgId.equals(bankId)) {
+                        //update currencies course
+                        Log.d(TAG,"currentOrgId - "+currentOrgId);
+                        HashMap<String, Currency> currencies = organization.getCurrencies();
+                        for (Map.Entry<String, Currency> entry : currencies.entrySet()) {
+                            String key = entry.getKey();
+                            Currency currency = entry.getValue();
+                            db.updateCourse(currentOrgId, key, currency.getAsk(), currency.getBid());
+                        }
 
-                    //update currencies course
-                    HashMap<String, Currency> currencies = organization.getCurrencies();
-                    for (Map.Entry<String, Currency> entry : currencies.entrySet()) {
-                        String key = entry.getKey();
-                        Currency currency = entry.getValue();
-                        db.updateCourse(currentOrgId, key, currency.getAsk(), currency.getBid());
+                        // delete old courses, that which is not in new data
+                        // don work properly
+                        // db.deleteOldCourses(currentOrgId);
+                        //update organizations data
+                        db.updateOrg(currentOrgId, organization.getTitle(), organization.getRegionId(),
+                                organization.getCityId(), organization.getPhone(), organization.getAddress(),
+                                organization.getLink(), lastJsonUpdate);
+
+                        i++;
+                        if ((i % REFRESH_ON == 0 || i == 1 || i == bankCount) && (handler != null)) {
+                            Message msg = handler.obtainMessage(STATUS_SAVE_REFRESH, i, bankCount);
+                            handler.sendMessage(msg);
+                        }
                     }
-
-                    // delete old courses, that which is not in new data
-                    // don work properly
-                    // db.deleteOldCourses(currentOrgId);
-                    //update organizations data
-                    db.updateOrg(currentOrgId, organization.getTitle(), organization.getRegionId(),
-                            organization.getCityId(), organization.getPhone(), organization.getAddress(),
-                            organization.getLink(), lastJsonUpdate);
-
-                    i++;
-                    if ((i % REFRESH_ON == 0 || i == 1 || i == bankCount) && (handler != null)) {
-                        Message msg = handler.obtainMessage(STATUS_SAVE_REFRESH, i, bankCount);
-                        handler.sendMessage(msg);
-                    }
-
                 }
-                dictionUpdate(db, TBL_CURRENCIES, _dataResponse.getCurrencies());
-                dictionUpdate(db, TBL_CITIES, _dataResponse.getCities());
-                dictionUpdate(db, TBL_REGIONS, _dataResponse.getRegions());
+                dictionUpdate(db, TBL_CURRENCIES, dataResponse.getCurrencies());
+                dictionUpdate(db, TBL_CITIES, dataResponse.getCities());
+                dictionUpdate(db, TBL_REGIONS, dataResponse.getRegions());
             }
 
             if (USE_TRANSACTION) db.setTransactionSuccessful();
@@ -240,7 +246,7 @@ public class DownloadDataImpl implements DownloadData {
 
             db.close();
             if (handler != null) {
-                Message msg = handler.obtainMessage(STATUS_DATA_SAVED, bankCount, 0);
+                Message msg = handler.obtainMessage(STATUS_DATA_SAVED, bankCount);
                 handler.sendMessage(msg);
             }
         }

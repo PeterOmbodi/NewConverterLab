@@ -1,6 +1,7 @@
 package com.peterombodi.newconverterlab.presentation.screen.organisation_list.presenter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -27,8 +28,8 @@ public class BankRVHolders extends RecyclerView.ViewHolder implements View.OnCli
     public TextView tvDateDelta;
     public TextView tvDateShort;
 
-    private IListFragment.IPresenter iRecyclerView;
-//    private IGetAction iRecyclerView;
+    private IListFragment.IPresenter iPresenter;
+//    private IGetAction iPresenter;
 public OrganizationRV organizationRV;
     private ImageButton ibLink;
     private ImageButton ibMap;
@@ -50,7 +51,7 @@ public OrganizationRV organizationRV;
         tvDateDelta = (TextView) itemView.findViewById(R.id.tv_date_delta_ILO);
         tvDateShort = (TextView) itemView.findViewById(R.id.tv_date_short_ILO);
 
-        this.iRecyclerView = iRecyclerView;
+        this.iPresenter = iRecyclerView;
 
         ibLink = (ImageButton) itemView.findViewById(R.id.ib_link_ILO);
         ibLink.setOnClickListener(this);
@@ -67,20 +68,21 @@ public OrganizationRV organizationRV;
 
         switch (view.getId()) {
             case R.id.ib_link_ILO:
-                iRecyclerView.openLink(this.tvLink.getText().toString());
+                iPresenter.presenterOpenLink(this.tvLink.getText().toString());
                 break;
             case R.id.ib_map_ILO:
-                iRecyclerView.openMap(this.tvRegion.getText().toString(),
+                iPresenter.presenterOpenMap(this.tvRegion.getText().toString(),
                         this.tvCity.getText().toString(),
                         this.tvAddress.getText().toString(),
                         this.tvName.getText().toString()
                 );
                 break;
             case R.id.ib_phone_ILO:
-                iRecyclerView.openCaller(this.tvPhone.getText().toString());
+                iPresenter.presenterOpenCaller(this.tvPhone.getText().toString());
                 break;
             case R.id.ib_next_ILO:
-                iRecyclerView.openDetail(this.organizationRV);
+                Log.d(TAG,"presenterOpenDetail");
+                iPresenter.presenterOpenDetail(this.organizationRV);
                 break;
 
         }

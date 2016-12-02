@@ -10,40 +10,37 @@ import java.util.ArrayList;
 
 public interface IListFragment {
 
-//    interface IFragment {
-//        void onRefreshRV(ArrayList<OrganizationRV> _arrayList);
-//    }
-
-
     interface IPresenter {
         void registerView(IListFragment.IView _view);
         void unRegisterView();
 
-        void setRvArrayList(ArrayList<OrganizationRV> _rvArrayList);
+        void presenterSetRV(ArrayList<OrganizationRV> _rvArrayList);
         void refreshData();
 
-        void openDetail(OrganizationRV _organizationRV);
-        void openLink(String _url);
-        void openMap(String _region, String _city, String _address, String _title);
-        void openCaller(String _phone);
+        void presenterOpenDetail(OrganizationRV _organizationRV);
+        void presenterOpenLink(String _url);
+        void presenterOpenMap(String _region, String _city, String _address, String _title);
+        void presenterOpenCaller(String _phone);
 
     }
 
     interface IView {
         void setRvArrayList(ArrayList<OrganizationRV> _rvArrayList);
-        void openDetail(OrganizationRV _organizationRV);
-        void openLink(String _url);
-        void openMap(String _region, String _city, String _address, String _title);
-        void openCaller(String _phone);
+
+        void viewOpenDetail(OrganizationRV _organizationRV);
+        void viewOpenLink(String _url);
+        void viewOpenMap(String _region, String _city, String _address, String _title);
+        void viewOpenCaller(String _phone);
+
         void showProgress(int _itemNo, int _itemTotal);
         void getDbData(String _filter);
     }
 
-    interface ResponseCallback<V> {
-        void onRefreshResponse(V _data);
-        void onSavedData(int _records);
-        void onSaveRefresh(int _itemNo, int _itemTotal);
-        void onRefreshFailure();
-    }
+//    interface ResponseCallback<V> {
+//        void onRefreshResponse(V _data);
+//        void onSavedData(int _records);
+//        void onSaveRefresh(int _itemNo, int _itemTotal);
+//        void onRefreshFailure();
+//    }
 
 }

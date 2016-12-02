@@ -31,4 +31,5 @@
     <string name="download_in_progress">идет загрузка</string>
     <string name="download_complete">загрузка завершена</string>
     <string name="msg_no_latlng">Не удалось получить координаты, повторите позже</string>
+    <string name="msg_no_data_geted">Не удалось получить данные из базы!</string>
 </resources>

@@ -3,7 +3,7 @@ package com.peterombodi.newconverterlab.domain;
 
 import com.peterombodi.newconverterlab.data.api.DownloadData;
 import com.peterombodi.newconverterlab.data.api.DownloadDataImpl;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
+import com.peterombodi.newconverterlab.presentation.screen.base.ResponseCallback;
 
 public class DomainImpl implements Domain {
 
@@ -11,9 +11,9 @@ public class DomainImpl implements Domain {
     private DownloadData downloadData;
 
      @Override
-    public void getData(IListFragment.ResponseCallback _callback) {
+    public void getData(ResponseCallback _callback,String _bankId) {
         downloadData = new DownloadDataImpl();
-        downloadData.downloadData(_callback);
+        downloadData.downloadData(_callback,_bankId);
     }
 
     @Override
@@ -22,8 +22,9 @@ public class DomainImpl implements Domain {
     }
 
     @Override
-    public void setCallback(IListFragment.ResponseCallback _callback) {
+    public void setCallback(ResponseCallback _callback) {
         if (downloadData!=null) downloadData.setCallback(_callback);
     }
+
 
 }

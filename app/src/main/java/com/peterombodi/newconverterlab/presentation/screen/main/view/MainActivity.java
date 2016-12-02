@@ -12,13 +12,17 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -26,6 +30,7 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.SphericalUtil;
+import com.peterombodi.newconverterlab.data.geo.GeoCoderLoader;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.global.Constants;
 import com.peterombodi.newconverterlab.presentation.R;
@@ -33,12 +38,16 @@ import com.peterombodi.newconverterlab.presentation.screen.legalNotice.LegalNoti
 import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
 import com.peterombodi.newconverterlab.presentation.screen.main.presenter.MainScreenPresenter;
 import com.peterombodi.newconverterlab.presentation.screen.mapFragment.MapViewFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisation_detail.view.DetailFragment;
 import com.peterombodi.newconverterlab.presentation.screen.organisation_list.view.BankListFragment;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements IMainScreen.IView, IMainScreen.IGetAction {
+public class MainActivity extends FragmentActivity implements
+        IMainScreen.IView,
+        IMainScreen.IGetAction,
+        LoaderManager.LoaderCallbacks<Address> {
 
     private static final String TAG = "MainActivity";
     private static final String MAP_FRAGMENT_TAG = "MAP_FRAGMENT_TAG";
@@ -49,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
     private static final String[] PERMISSIONS_CALL = {Manifest.permission.CALL_PHONE};
     private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
+    private static final int LOADER_GEOCODER_ID = 1;
 
     private IMainScreen.IPresenter presenter;
 
@@ -58,8 +68,9 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
     private Fragment detailFragment;
     private View mLayout;
     private boolean firstRun = true;
-    private LatLng bankLatLng;
+
     private String phoneNumber;
+    private OrganizationRV currentBank;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,11 +128,9 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
 
     private void commitMapFragment(Address _address) {
         mapFragment = new MapViewFragment();
-
         Bundle bundle = new Bundle();
         bundle.putParcelable(Constants.KEY_ADDRESS, _address);
         mapFragment.setArguments(bundle);
-
         getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack(MAP_FRAGMENT_TAG)
@@ -130,15 +139,35 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
                 .commit();
     }
 
+    private void commitDetailFragment(OrganizationRV _organizationRV) {
+
+        currentBank = _organizationRV;
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.KEY_BANK, _organizationRV);
+
+        // Create fragment and give it an argument for the selected article
+        detailFragment = new DetailFragment();
+        detailFragment.setArguments(bundle);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(Constants.TAG_DETAIL_FRAGMENT)
+                .replace(R.id.fragment_container, detailFragment, Constants.TAG_DETAIL_FRAGMENT)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+    }
+
 
     @Override
     public void openDetail(OrganizationRV _organizationRV) {
+        Log.d(TAG, "presenterOpenDetail");
+        commitDetailFragment(_organizationRV);
     }
 
     @Override
     public void openLink(String _url) {
 
-        Log.d(TAG, "openLink _url =" + _url);
+        Log.d(TAG, "presenterOpenLink _url =" + _url);
         if (!_url.startsWith(HTTP) && !_url.startsWith(HTTPS)) _url = HTTP + _url;
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(_url));
         if (intent.resolveActivity(getPackageManager()) != null) {
@@ -147,13 +176,26 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
     }
 
     @Override
-    public void openMap(Address _address) {
-        Log.d(TAG, "openMap _address =" + _address.toString());
-        if (_address != null) {
-//            bankLatLng = _latLng;
-//            Log.d(TAG, "bankLatLng = " + bankLatLng);
-            selectAction(_address);
+    public void openMap(String _region, String _city, String _address, String _title) {
+
+        if (checkPlayServices()) {
+
+            Bundle bundle = new Bundle();
+            bundle.putString(GeoCoderLoader.ARGS_REGION, _region);
+            bundle.putString(GeoCoderLoader.ARGS_CITY, _city);
+            bundle.putString(GeoCoderLoader.ARGS_ADDRESS, _address);
+            bundle.putString(GeoCoderLoader.ARGS_TITLE, _title);
+
+            if (getSupportLoaderManager().getLoader(LOADER_GEOCODER_ID) == null) {
+                getSupportLoaderManager().initLoader(LOADER_GEOCODER_ID, bundle, this);
+            } else {
+                getSupportLoaderManager().restartLoader(LOADER_GEOCODER_ID, bundle, this);
+            }
         }
+
+
+        Log.d(TAG, "presenterOpenMap _address =" + _address.toString());
+
     }
 
     @Override
@@ -272,4 +314,36 @@ public class MainActivity extends AppCompatActivity implements IMainScreen.IView
         }
     }
 
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new GeoCoderLoader(this, args);
+    }
+
+
+    @Override
+    public void onLoadFinished(Loader loader, Address _data) {
+        if (_data != null) {
+            selectAction((Address) _data);
+        } else {
+            Toast.makeText(this, getResources().getString(R.string.msg_no_latlng), Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if (result != ConnectionResult.SUCCESS) {
+            if (googleAPI.isUserResolvableError(result)) {
+                googleAPI.getErrorDialog(this, result, 9999).show();
+            }
+            return false;
+        }
+        return true;
+    }
 }

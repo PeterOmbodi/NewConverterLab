@@ -26,15 +26,15 @@ import static com.peterombodi.newconverterlab.data.database.DBHelper.TITLE_COLUM
  * Created by Admin on 28.11.2016.
  */
 
-public class GetDbData extends AsyncTaskLoader<ArrayList<OrganizationRV>> {
+public class GetDbOrganizations extends AsyncTaskLoader<ArrayList<OrganizationRV>> {
 
-    private static final String TAG = "GetDbData";
+    private static final String TAG = "GetDbOrganizations";
     public final static String ARGS_FILTER = "filter";
     private String filter;
     private ArrayList<OrganizationRV> organizationRVList;
 //    private Context context;
 
-    public GetDbData(Context context, Bundle args) {
+    public GetDbOrganizations(Context context, Bundle args) {
         super(context);
 //        this.context = context;
         if (args != null)

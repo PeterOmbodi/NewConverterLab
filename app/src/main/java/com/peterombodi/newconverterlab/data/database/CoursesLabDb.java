@@ -210,5 +210,31 @@ public class CoursesLabDb {
         return mDB.rawQuery(select, null);
     }
 
+    public Cursor getCourses(String id) {
+
+//        SELECT [currencies].[name],
+//        [courses].[ask],
+//        [courses].[bid],
+//        [courses].[askDelta],
+//        [courses].[bidDelta]
+//        FROM [courses]
+//        INNER JOIN [currencies] ON [courses].
+//        [currencyId] = [currencies].[id]
+//        WHERE [courses].[orgId]='7oiylpmiow8iy1smaze'
+
+        String select = "SELECT [" + TBL_CURRENCIES + "].[" + NAME_COLUMN + "]," +
+                "[" + TBL_COURSES + "].[" + ASK_COLUMN + "]," +
+                "[" + TBL_COURSES + "].[" + BID_COLUMN + "]," +
+                "[" + TBL_COURSES + "].[" + ASK_DELTA_COLUMN + "]," +
+                "[" + TBL_COURSES + "].[" + BID_DELTA_COLUMN + "]" +
+                "FROM [" + TBL_COURSES + "]" +
+                "INNER JOIN [" + TBL_CURRENCIES + "] ON [" + TBL_COURSES + "].[" +
+                CURRENCY_ID_COLUMN + "] = [" + TBL_CURRENCIES + "].[" + ID_COLUMN + "]" +
+                "WHERE [" + TBL_COURSES + "].[" + ORG_ID_COLUMN + "]=?";
+
+        Cursor cursor = mDB.rawQuery(select, new String[]{id});
+        return cursor;
+
+    }
 
 }
