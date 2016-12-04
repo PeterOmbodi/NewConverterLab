@@ -13,7 +13,7 @@ import java.util.List;
  * Created by Admin on 25.11.2016.
  */
 
-public class GeoCoderLoader extends AsyncTaskLoader<Address> {
+public class GeoCoderLoader<A> extends AsyncTaskLoader<Address> {
 
     private static final String TAG = "GeoCoderLoader";
     public static final String ARGS_REGION = "ARGS_REGION";
@@ -46,6 +46,7 @@ public class GeoCoderLoader extends AsyncTaskLoader<Address> {
 
     @Override
     protected void onStartLoading() {
+        Log.d(TAG, "++++ onStartLoading ");
         forceLoad();
         super.onStartLoading();
     }
@@ -53,7 +54,7 @@ public class GeoCoderLoader extends AsyncTaskLoader<Address> {
     @Override
     public Address loadInBackground() {
 
-        Log.d(TAG, "loadInBackground 1 strAddress = " + strAddress);
+        Log.d(TAG, "++++ loadInBackground 1 strAddress = " + strAddress);
 
         Geocoder coder = new Geocoder(context);
         List<Address> listAddress;

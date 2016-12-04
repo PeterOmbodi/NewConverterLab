@@ -34,7 +34,7 @@ public class Application extends android.app.Application {
                 .setLifetime(Lifetime.FOREVER)
                 .setRecurring(true)
                 .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
-                .setTrigger(Trigger.executionWindow(10*60,11*60))
+                .setTrigger(Trigger.executionWindow(30*60,35*60))
                 .setConstraints(Constraint.ON_ANY_NETWORK)
                 .build();
 

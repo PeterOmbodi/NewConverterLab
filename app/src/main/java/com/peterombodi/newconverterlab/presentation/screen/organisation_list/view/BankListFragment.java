@@ -41,7 +41,7 @@ public class BankListFragment extends Fragment implements
         LoaderManager.LoaderCallbacks {
 
     private static final String TAG = "BankListFragment";
-    static final int LOADER_GEOCODER_ID = 1;
+//    static final int LOADER_GEOCODER_ID = 1;
     static final int LOADER_DATABASE_ID = 2;
     private static final String SEARCH_KEY = "SEARCH_KEY";
 
@@ -144,9 +144,6 @@ public class BankListFragment extends Fragment implements
             progressDialog.dismiss();
             progressDialog = null;
         }
-        if (getLoaderManager().getLoader(LOADER_GEOCODER_ID) != null) {
-            getLoaderManager().destroyLoader(LOADER_GEOCODER_ID);
-        }
         if (getLoaderManager().getLoader(LOADER_DATABASE_ID) != null) {
             getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
         }
@@ -225,6 +222,7 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader loader, Object _data) {
+        Log.d(TAG,"++++* onLoadFinished loader id = "+ loader.getId());
         if (_data != null) {
             presenter.presenterSetRV((ArrayList<OrganizationRV>) _data);
         } else {

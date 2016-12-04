@@ -30,7 +30,6 @@ public interface IDetailFragment {
         void viewOpenMap(String _region, String _city, String _address, String _title);
         void viewOpenCaller(String _phone);
 
-        void showProgress(int _itemNo, int _itemTotal);
         void getDbData(String _filter);
     }
 

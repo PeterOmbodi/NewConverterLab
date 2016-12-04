@@ -204,6 +204,15 @@ public class DownloadDataImpl implements DownloadData {
             Log.d(TAG, "lastDBUpdate = " + lastDBUpdate);
             Log.d(TAG, "lastJsonUpdate = " + lastJsonUpdate);
             Log.d(TAG, "bankCount = " + bankCount);
+// TODO: 04.12.2016 Алгоритм д.б. приблизительно таким:
+            /* 1 проверить есть ли изменение хоть в одной паре по банку
+            *  2 только если есть:
+            *           - поменять все пары
+            *           - поменять дату обновления
+            *  3 в новой посылке могут быть другие справочники
+            *    проверить и обновить ключи!
+            *  4 заменить дату проверки(обновления)
+            * */
 
             if (!lastDBUpdate.equals(lastJsonUpdate)) {
                 if (handler != null) handler.sendEmptyMessage(STATUS_DATA_UPDATE);

@@ -58,7 +58,7 @@ public class MainActivity extends FragmentActivity implements
     private static final String[] PERMISSIONS_CALL = {Manifest.permission.CALL_PHONE};
     private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
-    private static final int LOADER_GEOCODER_ID = 1;
+    private static final int LOADER_GEOCODER_ID = 11;
 
     private IMainScreen.IPresenter presenter;
 
@@ -74,36 +74,39 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG,"++++ onCreate ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.activity_main);
         if (savedInstanceState == null) {
+            Log.d(TAG,"++++ onCreate, savedInstanceState == null ");
             commitListFragment(null);
         }
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        presenter.unRegisterView();
-        super.onDestroy();
     }
 
     @Override
     protected void onStart() {
+        Log.d(TAG,"++++ onStart ");
         super.onStart();
-        presenter = new MainScreenPresenter();
-        presenter.registerView(this);
-        if (firstRun) {
-
-//            presenter.domainCallTest("call from view");
-            //commitListFragment(null);
-            firstRun = false;
-        }
 // TODO: 22.11.2016 pause for job?
-
     }
 
+
+    @Override
+    protected void onResume() {
+        if (presenter==null) presenter = new MainScreenPresenter();
+        presenter.registerView(this);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+         presenter.unRegisterView();
+        if (getSupportLoaderManager().getLoader(LOADER_GEOCODER_ID) != null) {
+            getSupportLoaderManager().destroyLoader(LOADER_GEOCODER_ID);
+        }
+        super.onPause();
+    }
 
     @Override
     public void setBankListFragment(ArrayList<OrganizationRV> _rvArrayList) {
@@ -177,6 +180,7 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void openMap(String _region, String _city, String _address, String _title) {
+        Log.d(TAG, " ++++ openMap");
 
         if (checkPlayServices()) {
 
@@ -192,9 +196,6 @@ public class MainActivity extends FragmentActivity implements
                 getSupportLoaderManager().restartLoader(LOADER_GEOCODER_ID, bundle, this);
             }
         }
-
-
-        Log.d(TAG, "presenterOpenMap _address =" + _address.toString());
 
     }
 
@@ -315,15 +316,19 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public Loader onCreateLoader(int id, Bundle args) {
-        return new GeoCoderLoader(this, args);
+    public Loader<Address> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG,"+++++ onCreateLoader");
+        return new GeoCoderLoader<Address>(this, args);
     }
 
 
     @Override
     public void onLoadFinished(Loader loader, Address _data) {
+        Log.d(TAG,"++++* onLoadFinished loader id = "+ loader.getId());
         if (_data != null) {
+            getSupportLoaderManager().destroyLoader(LOADER_GEOCODER_ID);
             selectAction((Address) _data);
+
         } else {
             Toast.makeText(this, getResources().getString(R.string.msg_no_latlng), Toast.LENGTH_SHORT).show();
         }
@@ -332,6 +337,7 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onLoaderReset(Loader loader) {
+        Log.d(TAG,"++++ onLoaderReset ");
 
     }
 
@@ -346,4 +352,6 @@ public class MainActivity extends FragmentActivity implements
         }
         return true;
     }
+
+
 }

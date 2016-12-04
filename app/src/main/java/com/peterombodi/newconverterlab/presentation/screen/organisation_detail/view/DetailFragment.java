@@ -36,7 +36,7 @@ import java.util.ArrayList;
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks,IDetailFragment.IView {
 
     private static final String TAG = "DetailFragment";
-    static final int LOADER_DATABASE_ID = 1;
+    static final int LOADER_DATABASE_ID = 7;
     private View view;
     private OrganizationRV bank;
     private RecyclerView recyclerView;
@@ -49,7 +49,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private FloatingActionButton fabPhone;
     private Context context;
     private IDetailFragment.IPresenter presenter;
-    private IMainScreen.IGetAction iGetAction;
     private SwipeRefreshLayout swipeContainer;
 
     public DetailFragment() {
@@ -70,19 +69,21 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         context = getActivity();
 
         presenter.registerView(this);
-        iGetAction = (IMainScreen.IGetAction) context;
 
-        if (getArguments() != null) {
+
+        if (getArguments() != null && savedInstanceState==null) {
             bank = getArguments().getParcelable(Constants.KEY_BANK);
+            getDbData(bank.getId());
             initializeViews();
         }
+
         return view;
     }
 
     @Override
     public void onResume() {
         Log.d(TAG, ">>>>----- onResume "+bank.getId());
-        getDbData(bank.getId());
+
         super.onResume();
     }
 
@@ -93,7 +94,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
         }
         presenter.unRegisterView();
-        iGetAction = null;
         super.onDestroyView();
     }
 
@@ -107,7 +107,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             rvAdapter = new CourseRVAdapter(_rvArrayList);
             recyclerView.setAdapter(rvAdapter);
         }
-
         if (swipeContainer != null) swipeContainer.setRefreshing(false);
 
     }
@@ -124,12 +123,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void viewOpenCaller(String _phone) {
-
-    }
-
-    @Override
-    public void showProgress(int _itemNo, int _itemTotal) {
-
+        iActivity.openCaller(bank.getPhone());
     }
 
     public void getDbData(String _string) {
@@ -170,7 +164,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     presenter.presenterOpenMap(bank.getRegion(),bank.getCity(),bank.getAddress(),bank.getTitle());
                     break;
                 case R.id.fab_phone_FD:
-                    iActivity.openCaller(bank.getPhone());
+                    presenter.presenterOpenCaller(bank.getPhone());
                     break;
 
             }
