@@ -225,7 +225,9 @@ public class BankListFragment extends Fragment implements
         Log.d(TAG,"++++* onLoadFinished loader id = "+ loader.getId());
         if (_data != null) {
             ArrayList<OrganizationRV> arrayList = (ArrayList<OrganizationRV>) _data;
-            if (arrayList.size()==0) {
+            if (arrayList.size()==0
+                    && (searchView != null)
+                    && searchView.getQuery().toString().isEmpty()) {
                 presenter.refreshData();
             } else {
                 presenter.presenterSetRV(arrayList);
