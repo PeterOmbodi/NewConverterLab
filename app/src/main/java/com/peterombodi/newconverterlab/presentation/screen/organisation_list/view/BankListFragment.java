@@ -133,7 +133,9 @@ public class BankListFragment extends Fragment implements
     @Override
     public void onResume() {
         Log.d(TAG, ">>>>----- onResume ");
-        getDbData(null);
+
+        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) getDbData(null);
+
         super.onResume();
     }
 
@@ -144,9 +146,9 @@ public class BankListFragment extends Fragment implements
             progressDialog.dismiss();
             progressDialog = null;
         }
-        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) != null) {
-            getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
-        }
+//        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) != null) {
+//            getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
+//        }
         presenter.unRegisterView();
         iGetAction = null;
         super.onDestroyView();
@@ -160,7 +162,8 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public boolean onQueryTextChange(String _query) {
-        getDbData(_query);
+        Log.d(TAG,"************************ onQueryTextChange");
+        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) getDbData(_query);
         return false;
     }
 
@@ -208,8 +211,10 @@ public class BankListFragment extends Fragment implements
         Bundle bundle = new Bundle();
         bundle.putString(GetDbOrganizations.ARGS_FILTER, _string);
         if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) {
+            Log.d(TAG,"************* initLoader");
             getLoaderManager().initLoader(LOADER_DATABASE_ID, bundle, this);
         } else {
+            Log.d(TAG,"************* restartLoader");
             getLoaderManager().restartLoader(LOADER_DATABASE_ID, bundle, this);
         }
     }
@@ -226,8 +231,8 @@ public class BankListFragment extends Fragment implements
         if (_data != null) {
             ArrayList<OrganizationRV> arrayList = (ArrayList<OrganizationRV>) _data;
             if (arrayList.size()==0
-                    && (searchView != null)
-                    && searchView.getQuery().toString().isEmpty()) {
+                    && (((searchView != null) && searchView.getQuery().toString().isEmpty()) || (searchView == null)))
+            {
                 presenter.refreshData();
             } else {
                 presenter.presenterSetRV(arrayList);

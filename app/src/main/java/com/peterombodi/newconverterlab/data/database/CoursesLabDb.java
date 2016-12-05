@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.peterombodi.newconverterlab.global.Constants;
 
@@ -18,6 +19,7 @@ import static com.peterombodi.newconverterlab.data.database.DBHelper.*;
 
 public class CoursesLabDb {
 
+    private static final String TAG = "CoursesLabDb";
     //private static Context mContext;
     private Context mContext;
     private DBHelper mDBHelper;
@@ -29,6 +31,7 @@ public class CoursesLabDb {
 
     // open connect
     public void open() {
+        Log.d(TAG, "*********************** open");
         mDBHelper = new DBHelper(mContext, DB_NAME, null, DB_VERSION);
         mDB = mDBHelper.getWritableDatabase();
     }
@@ -45,7 +48,7 @@ public class CoursesLabDb {
 
     // set Transaction Successful
     public void setTransactionSuccessful() {
-        mDB.setTransactionSuccessful() ;
+        mDB.setTransactionSuccessful();
     }
 
 
@@ -140,32 +143,38 @@ public class CoursesLabDb {
         String deltaAsk = "0.00";
         String deltaBid = "0.00";
         String previousDate = "";
+        Boolean needUpdate = true;
+
         if (findEntry.getCount() > 0) {
             findEntry.moveToFirst();
             String askOld = findEntry.getString(findEntry.getColumnIndex(ASK_COLUMN));
             String bidOld = findEntry.getString(findEntry.getColumnIndex(BID_COLUMN));
-            deltaAsk = String.format(Locale.US, "%.2f", Float.valueOf(ask) - Float.valueOf(askOld));
-            deltaBid = String.format(Locale.US, "%.2f", Float.valueOf(bid) - Float.valueOf(bidOld));
+            Float dAsk = Float.valueOf(ask) - Float.valueOf(askOld);
+            Float dBid = Float.valueOf(bid) - Float.valueOf(bidOld);
+            needUpdate = (dAsk != 0 || dBid != 0);
+            deltaAsk = String.format(Locale.US, "%.2f", dAsk);
+            deltaBid = String.format(Locale.US, "%.2f", dBid);
             previousDate = findEntry.getString(findEntry.getColumnIndex(DATE_COLUMN));
         }
+
         findEntry.close();
+        if (needUpdate) {
+            //delete old course value
+            mDB.delete(TBL_COURSES, "[orgId] = ? and [courses].[currencyId] = ?", new String[]{orgId, currencyId});
 
-        //delete old course value
-        mDB.delete(TBL_COURSES, "[orgId] = ? and [courses].[currencyId] = ?", new String[]{orgId, currencyId});
+            //insert new course value
+            ContentValues cv = new ContentValues();
+            cv.put(ORG_ID_COLUMN, orgId);
+            cv.put(CURRENCY_ID_COLUMN, currencyId);
+            cv.put(ASK_COLUMN, ask);
+            cv.put(BID_COLUMN, bid);
+            cv.put(ASK_DELTA_COLUMN, deltaAsk);
+            cv.put(BID_DELTA_COLUMN, deltaBid);
+            //saving date for *_Delta columns
+            cv.put(DATE_COLUMN, previousDate);
 
-        //insert new course value
-        ContentValues cv = new ContentValues();
-        cv.put(ORG_ID_COLUMN, orgId);
-        cv.put(CURRENCY_ID_COLUMN, currencyId);
-        cv.put(ASK_COLUMN, ask);
-        cv.put(BID_COLUMN, bid);
-        cv.put(ASK_DELTA_COLUMN, deltaAsk);
-        cv.put(BID_DELTA_COLUMN, deltaBid);
-        //saving date for *_Delta columns
-        cv.put(DATE_COLUMN, previousDate);
-
-        mDB.insert(TBL_COURSES, null, cv);
-
+            mDB.insert(TBL_COURSES, null, cv);
+        }
     }
 
     // getting data for RecyclerView

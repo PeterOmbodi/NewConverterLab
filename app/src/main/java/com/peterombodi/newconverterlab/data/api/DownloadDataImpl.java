@@ -223,6 +223,7 @@ public class DownloadDataImpl implements DownloadData {
                     if (ALL_NEED_TO_SAVE || currentOrgId.equals(bankId)) {
                         //update currencies course
                         Log.d(TAG,"currentOrgId - "+currentOrgId);
+
                         HashMap<String, Currency> currencies = organization.getCurrencies();
                         for (Map.Entry<String, Currency> entry : currencies.entrySet()) {
                             String key = entry.getKey();

@@ -44,6 +44,7 @@ public class DetailPresenter implements IDetailFragment.IPresenter,ResponseCallb
     public void refreshData(String _bankId) {
         mDomain = new DomainImpl();
         //mDomain.getDetailData((IDetailFragment.ResponseCallback) this, _bankId);
+        Log.d(TAG,"*************** refreshData");
         mDomain.getData(this,_bankId);
     }
 
