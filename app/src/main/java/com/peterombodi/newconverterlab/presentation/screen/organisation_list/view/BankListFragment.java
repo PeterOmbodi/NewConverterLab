@@ -224,7 +224,13 @@ public class BankListFragment extends Fragment implements
     public void onLoadFinished(Loader loader, Object _data) {
         Log.d(TAG,"++++* onLoadFinished loader id = "+ loader.getId());
         if (_data != null) {
-            presenter.presenterSetRV((ArrayList<OrganizationRV>) _data);
+            ArrayList<OrganizationRV> arrayList = (ArrayList<OrganizationRV>) _data;
+            if (arrayList.size()==0) {
+                presenter.refreshData();
+            } else {
+                presenter.presenterSetRV(arrayList);
+            }
+
         } else {
             Toast.makeText(context, getResources().getString(R.string.msg_no_data_geted), Toast.LENGTH_SHORT).show();
         }
