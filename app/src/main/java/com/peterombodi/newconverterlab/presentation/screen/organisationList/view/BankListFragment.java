@@ -43,10 +43,8 @@ public class BankListFragment extends Fragment implements
         LoaderManager.LoaderCallbacks {
 
     private static final String TAG = "BankListFragment";
-    //    static final int LOADER_GEOCODER_ID = 1;
     static final int LOADER_DATABASE_ID = 2;
     private static final String SEARCH_KEY = "SEARCH_KEY";
-
 
     private BankRVAdapter rvAdapter;
     private Context context;
@@ -88,8 +86,12 @@ public class BankListFragment extends Fragment implements
         Log.d(TAG, ">>>> onCreateView ");
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         context = getActivity();
-        presenter.registerView(this);
-        iGetAction = (IMainScreen.IGetAction) context;
+
+        if (savedInstanceState==null) {
+            presenter.registerView(this);
+            iGetAction = (IMainScreen.IGetAction) context;
+        }
+
 
         Toolbar mActionBarToolbar = (Toolbar) view.findViewById(R.id.toolbar_actionbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(mActionBarToolbar);
@@ -156,11 +158,17 @@ public class BankListFragment extends Fragment implements
 //        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) != null) {
 //            getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
 //        }
-        presenter.unRegisterView();
-        iGetAction = null;
+
+
         super.onDestroyView();
     }
 
+    @Override
+    public void onDestroy() {
+        presenter.unRegisterView();
+        iGetAction = null;
+        super.onDestroy();
+    }
 
     @Override
     public boolean onQueryTextSubmit(String _query) {
@@ -194,13 +202,11 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void viewOpenDetail(OrganizationRV _organizationRV) {
-        Log.d(TAG, "view openDetail");
         iGetAction.openDetail(_organizationRV);
     }
 
     @Override
     public void viewOpenLink(String _url) {
-        Log.d(TAG, "presenterOpenLink _url =" + _url);
         iGetAction.openLink(_url);
     }
 
@@ -221,10 +227,10 @@ public class BankListFragment extends Fragment implements
         Bundle bundle = new Bundle();
         bundle.putString(GetDbOrganizations.ARGS_FILTER, _string);
         if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) {
-            Log.d(TAG, "************* initLoader");
+            Log.d(TAG, ">>>>>>>>> initLoader");
             getLoaderManager().initLoader(LOADER_DATABASE_ID, bundle, this);
         } else {
-            Log.d(TAG, "************* restartLoader");
+            Log.d(TAG, ">>>>>>>> restartLoader");
             getLoaderManager().restartLoader(LOADER_DATABASE_ID, bundle, this);
         }
     }
@@ -290,8 +296,6 @@ public class BankListFragment extends Fragment implements
             searchQuery = savedInstanceState.getString(SEARCH_KEY);
         }
         super.onViewStateRestored(savedInstanceState);
-
-
     }
 
 
