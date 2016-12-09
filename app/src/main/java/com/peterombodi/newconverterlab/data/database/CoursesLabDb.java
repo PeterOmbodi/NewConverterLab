@@ -5,13 +5,38 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.peterombodi.newconverterlab.global.Constants;
 
 import java.util.Locale;
 
-import static com.peterombodi.newconverterlab.data.database.DBHelper.*;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.ADDRESS_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.ASK_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.ASK_DELTA_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.BID_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.BID_DELTA_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.CITY_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.CITY_ID_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.CURRENCY_ID_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.DATE_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.DATE_DELTA_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.DB_NAME;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.DB_VERSION;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.ID_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.LINK_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.NAME_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.ORG_ID_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.PHONE_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.REGION_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.REGION_ID_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_CITIES;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_COURSES;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_CURRENCIES;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_ORGANIZATIONS;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_REGIONS;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TBL_UPDATES;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.TITLE_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.UPDATE_FROM_UI_COLUMN;
 
 /**
  * Created by Admin on 22.11.2016.
@@ -31,7 +56,6 @@ public class CoursesLabDb {
 
     // open connect
     public void open() {
-        Log.d(TAG, "*********************** open");
         mDBHelper = new DBHelper(mContext, DB_NAME, null, DB_VERSION);
         mDB = mDBHelper.getWritableDatabase();
     }
@@ -115,7 +139,7 @@ public class CoursesLabDb {
         }
     }
 
-    public void updateCourse(String orgId, String currencyId, String ask, String bid) {
+    public boolean updateCourse(String orgId, String currencyId, String ask, String bid, String _lastJsonUpdate) {
 
 //        String select = " SELECT [organizations].[date]," +
 //                "[courses].[ask]," +
@@ -154,7 +178,8 @@ public class CoursesLabDb {
             needUpdate = (dAsk != 0 || dBid != 0);
             deltaAsk = String.format(Locale.US, "%.2f", dAsk);
             deltaBid = String.format(Locale.US, "%.2f", dBid);
-            previousDate = findEntry.getString(findEntry.getColumnIndex(DATE_COLUMN));
+            previousDate = _lastJsonUpdate;
+                    //findEntry.getString(findEntry.getColumnIndex(DATE_COLUMN));
         }
 
         findEntry.close();
@@ -175,6 +200,7 @@ public class CoursesLabDb {
 
             mDB.insert(TBL_COURSES, null, cv);
         }
+        return needUpdate;
     }
 
     // getting data for RecyclerView
@@ -221,7 +247,8 @@ public class CoursesLabDb {
 
     public Cursor getCourses(String id) {
 
-//        SELECT [currencies].[name],
+//        SELECT [courses].[currencyId],
+//        [currencies].[name],
 //        [courses].[ask],
 //        [courses].[bid],
 //        [courses].[askDelta],
@@ -231,7 +258,9 @@ public class CoursesLabDb {
 //        [currencyId] = [currencies].[id]
 //        WHERE [courses].[orgId]='7oiylpmiow8iy1smaze'
 
-        String select = "SELECT [" + TBL_CURRENCIES + "].[" + NAME_COLUMN + "]," +
+        String select = "SELECT "+
+                "[" + TBL_COURSES + "].[" + CURRENCY_ID_COLUMN + "]," +
+                "[" + TBL_CURRENCIES + "].[" + NAME_COLUMN + "]," +
                 "[" + TBL_COURSES + "].[" + ASK_COLUMN + "]," +
                 "[" + TBL_COURSES + "].[" + BID_COLUMN + "]," +
                 "[" + TBL_COURSES + "].[" + ASK_DELTA_COLUMN + "]," +

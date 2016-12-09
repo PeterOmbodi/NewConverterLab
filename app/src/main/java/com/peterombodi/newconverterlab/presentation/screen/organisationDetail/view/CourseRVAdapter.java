@@ -1,5 +1,6 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_detail.view;
+package com.peterombodi.newconverterlab.presentation.screen.organisationDetail.view;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,9 +8,11 @@ import android.view.ViewGroup;
 
 import com.peterombodi.newconverterlab.data.model.Currency;
 import com.peterombodi.newconverterlab.presentation.R;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_detail.presenter.CourseRVHolders;
+import com.peterombodi.newconverterlab.presentation.screen.organisationDetail.presenter.CourseRVHolders;
 
 import java.util.List;
+
+import static com.peterombodi.newconverterlab.presentation.Application.getContext;
 
 /**
  * Created by Admin on 01.12.2016.
@@ -42,6 +45,16 @@ public class CourseRVAdapter extends RecyclerView.Adapter<CourseRVHolders> {
         String bidDelta =itemList.get(position).getBidDelta();
         holder.tvAskDelta.setText(askDelta);
         holder.tvBidDelta.setText(bidDelta);
+
+        holder.tvAsk.setTextColor(Float.parseFloat(askDelta)<0?
+                ContextCompat.getColor(getContext(),R.color.colorDown):
+                ContextCompat.getColor(getContext(),R.color.colorUp));
+
+        holder.tvBid.setTextColor(Float.parseFloat(bidDelta)<0?
+                ContextCompat.getColor(getContext(),R.color.colorDown):
+                ContextCompat.getColor(getContext(),R.color.colorUp));
+
+
         holder.ivAsk.setImageResource(Float.parseFloat(askDelta)<0?
                 R.drawable.ic_arrow_drop_down:
                 R.drawable.ic_arrow_drop_up);

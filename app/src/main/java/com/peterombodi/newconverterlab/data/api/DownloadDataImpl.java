@@ -51,6 +51,7 @@ public class DownloadDataImpl implements DownloadData {
     private Retrofit retrofit;
     private ResponseCallback<DataResponse> callback;
     private String bankId;
+    private String updateDate;
 
     private NotificationCompat.Builder mBuilder;
     private NotificationManager mNotifyManager;
@@ -160,7 +161,7 @@ public class DownloadDataImpl implements DownloadData {
                         updateNotification(msg.arg1, msg.arg2);
                         break;
                     case STATUS_DATA_SAVED:
-                        if (callback != null) callback.onSavedData(msg.arg1,bankId);
+                        if (callback != null) callback.onSavedData(msg.arg1,bankId,updateDate);
                         if (mBuilder != null) {
                             mBuilder.setContentText(Application.getContext().getResources().getString(R.string.download_complete));
                             // Removes the progress bar
@@ -215,6 +216,7 @@ public class DownloadDataImpl implements DownloadData {
             * */
 
             if (!lastDBUpdate.equals(lastJsonUpdate)) {
+                updateDate = lastJsonUpdate;
                 if (handler != null) handler.sendEmptyMessage(STATUS_DATA_UPDATE);
                 db.setLastUpdate(lastJsonUpdate, (callback != null));
                 int i = 0;
@@ -225,16 +227,21 @@ public class DownloadDataImpl implements DownloadData {
                         Log.d(TAG,"currentOrgId - "+currentOrgId);
 
                         HashMap<String, Currency> currencies = organization.getCurrencies();
+                        boolean needUpdate = false;
                         for (Map.Entry<String, Currency> entry : currencies.entrySet()) {
                             String key = entry.getKey();
                             Currency currency = entry.getValue();
-                            db.updateCourse(currentOrgId, key, currency.getAsk(), currency.getBid());
+                            needUpdate = (db.updateCourse(currentOrgId, key, currency.getAsk(), currency.getBid(), lastJsonUpdate)
+                            || needUpdate);
+
                         }
 
                         // delete old courses, that which is not in new data
                         // don work properly
                         // db.deleteOldCourses(currentOrgId);
                         //update organizations data
+//                        if (needUpdate)
+
                         db.updateOrg(currentOrgId, organization.getTitle(), organization.getRegionId(),
                                 organization.getCityId(), organization.getPhone(), organization.getAddress(),
                                 organization.getLink(), lastJsonUpdate);

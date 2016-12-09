@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_list;
+package com.peterombodi.newconverterlab.presentation.screen.organisationList;
 
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 

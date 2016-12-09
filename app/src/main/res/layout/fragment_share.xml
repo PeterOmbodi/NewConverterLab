@@ -1,0 +1,48 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout_FS"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    custom:layout_collapseParallaxMultiplier="1.0"
+    tools:context="com.peterombodi.newconverterlab.presentation.screen.shareDialog.ShareFragment">
+
+    <ScrollView
+        android:id="@+id/sv_SF"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.peterombodi.newconverterlab.presentation.screen.customView.CoursesView
+            android:id="@+id/cv_FS"
+            android:layout_width="match_parent"
+            android:layout_height="1000dp"
+            custom:canvasColor="@color/colorCard"
+
+            custom:nameColor="@color/colorDown"
+            custom:nameSize="18sp"
+            custom:nameStyle="bold"
+
+            custom:subTitleColor="@color/colorThirdText"
+            custom:subTitleSize="14sp"
+            custom:subTitleStyle="italic"
+
+            custom:titleColor="@color/colorFirstText"
+            custom:titleSize="22sp"
+            custom:titleStyle="bold"
+
+            custom:valueColor="@color/colorThirdText"
+            custom:valueSize="18sp"
+            custom:valueStyle="normal" />
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btn_share_FS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/share_title"
+        android:textColor="@color/colorAccent" />
+
+</LinearLayout>

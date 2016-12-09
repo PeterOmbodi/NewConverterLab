@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_detail;
+package com.peterombodi.newconverterlab.presentation.screen.organisationDetail;
 
 import com.peterombodi.newconverterlab.data.model.Currency;
 
@@ -31,6 +31,7 @@ public interface IDetailFragment {
         void viewOpenCaller(String _phone);
 
         void getDbData(String _filter);
+        void setUpdateDate(String _date);
     }
 
 }

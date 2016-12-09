@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_detail.view;
+package com.peterombodi.newconverterlab.presentation.screen.organisationDetail.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -7,13 +7,19 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
@@ -27,16 +33,25 @@ import com.peterombodi.newconverterlab.data.model.Currency;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.global.Constants;
 import com.peterombodi.newconverterlab.presentation.R;
-import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_detail.IDetailFragment;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_detail.presenter.DetailPresenter;
+import com.peterombodi.newconverterlab.presentation.screen.mainActivity.IMainScreen;
+import com.peterombodi.newconverterlab.presentation.screen.organisationDetail.IDetailFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisationDetail.presenter.DetailPresenter;
+import com.peterombodi.newconverterlab.presentation.screen.shareDialog.ShareFragment;
 
 import java.util.ArrayList;
 
-public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks,IDetailFragment.IView {
+import static com.peterombodi.newconverterlab.global.Constants.KEY_ARRAY_LIST;
+import static com.peterombodi.newconverterlab.global.Constants.TAG_DIALOG_SHARE_FRAGMENT;
+
+//import android.support.v7.app.ActionBar;
+
+public class DetailFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<ArrayList<Currency>>
+        , IDetailFragment.IView {
 
     private static final String TAG = "DetailFragment";
     static final int LOADER_DATABASE_ID = 7;
+    private static final String KEY_BANK_DATA = "KEY_BANK_DATA";
     private View view;
     private OrganizationRV bank;
     private RecyclerView recyclerView;
@@ -50,6 +65,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private Context context;
     private IDetailFragment.IPresenter presenter;
     private SwipeRefreshLayout swipeContainer;
+    private Toolbar toolbar;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -57,7 +73,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onAttach(Context context) {
-        Log.d(TAG,">>>>>>>>>>>onAttach");
         super.onAttach(context);
         if (presenter == null) presenter = new DetailPresenter();
     }
@@ -67,39 +82,73 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_detail, container, false);
         context = getActivity();
-
         presenter.registerView(this);
 
+        toolbar = (Toolbar) view.findViewById(R.id.toolbar_actionbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        setHasOptionsMenu(true);
 
-        if (getArguments() != null && savedInstanceState==null) {
+        Log.d(TAG, "______________ onCreateView");
+        if (getArguments() != null && savedInstanceState == null) {
+            Log.d(TAG, "______________ onCreateView - (getArguments() != null && savedInstanceState == null)");
             bank = getArguments().getParcelable(Constants.KEY_BANK);
-            getDbData(bank.getId());
-            initializeViews();
+            if (bank != null) getDbData(bank.getId());
+
         }
+        initializeViews();
+
 
         return view;
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, ">>>>----- onResume "+bank.getId());
+        Log.d(TAG, "___________ onResume " + bank.getId());
 
         super.onResume();
     }
 
     @Override
-    public void onDestroyView() {
-        Log.d(TAG, ">>>>----- onDestroyView");
-        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) != null) {
-            getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_share, menu);
+        //MenuItem item = menu.findItem(R.id.action_share);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_share:
+                showShareDialog();
+                break;
+            case android.R.id.home:
+                getActivity().onBackPressed();
         }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showShareDialog() {
+        DialogFragment dialog = ShareFragment.newInstance(bank, courseList);
+        //dialog.getActivity().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        dialog.show(getActivity().getSupportFragmentManager(), TAG_DIALOG_SHARE_FRAGMENT);
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG, "_____________ onDestroyView");
+//        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) != null) {
+//            getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
+//        }
         presenter.unRegisterView();
         super.onDestroyView();
     }
 
     @Override
     public void setRvArrayList(ArrayList<Currency> _rvArrayList) {
-        Log.d(TAG, ">>>>----- presenterSetRV");
+        Log.d(TAG, "__________________ presenterSetRV");
+        courseList = _rvArrayList;
         if (recyclerView != null && recyclerView.getAdapter() != null) {
             rvAdapter.animateTo(_rvArrayList);
             recyclerView.scrollToPosition(0);
@@ -112,13 +161,27 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
+    public void setUpdateDate(String _date) {
+        TextView textView = (TextView) view.findViewById(R.id.tv_update_FD);
+        if (_date != null) {
+            String date = _date.substring(0, 16).replace("T", " ");
+            String dateDelta = bank.getDateDelta();
+            dateDelta = (dateDelta.length() == 0) ? "" :
+                    bank.getDateDelta().substring(0, 16).replace("T", " ");
+            String updateDate = date
+                    + "\n (" + dateDelta + ")";
+            textView.setText(updateDate);
+        }
+    }
+
+    @Override
     public void viewOpenLink(String _url) {
         iActivity.openLink(bank.getLink());
     }
 
     @Override
     public void viewOpenMap(String _region, String _city, String _address, String _title) {
-        iActivity.openMap( _region, _city,  _address,  _title);
+        iActivity.openMap(_region, _city, _address, _title);
     }
 
     @Override
@@ -137,22 +200,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        menuFloat.setOnMenuButtonClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fabLink.setOnClickListener(clickListener);
-                fabMap.setOnClickListener(clickListener);
-                fabPhone.setOnClickListener(clickListener);
-                menuFloat.toggle(true);
-            }
-        });
-        createCustomAnimation();
-
-    }
-
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -161,7 +208,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     presenter.presenterOpenLink(bank.getLink());
                     break;
                 case R.id.fab_map_FD:
-                    presenter.presenterOpenMap(bank.getRegion(),bank.getCity(),bank.getAddress(),bank.getTitle());
+                    presenter.presenterOpenMap(bank.getRegion(), bank.getCity(), bank.getAddress(), bank.getTitle());
                     break;
                 case R.id.fab_phone_FD:
                     presenter.presenterOpenCaller(bank.getPhone());
@@ -202,6 +249,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     private void initializeViews() {
+        if (toolbar != null) {
+            toolbar.setTitle(bank.getTitle());
+            toolbar.setSubtitle(bank.getCity());
+            toolbar.setNavigationIcon(R.drawable.ic_arrow);
+        }
 
         recyclerView = (RecyclerView) view.findViewById(R.id.rv_currencies_FD);
         iActivity = (IMainScreen.IGetAction) getActivity();
@@ -217,6 +269,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         textView.setText(text);
         textView = (TextView) view.findViewById(R.id.tv_phone_FD);
         textView.setText(bank.getPhone());
+
         textView = (TextView) view.findViewById(R.id.tv_update_FD);
 
         String date = bank.getDate().substring(0, 16).replace("T", " ");
@@ -226,6 +279,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         String updateDate = date
                 + "\n (" + dateDelta + ")";
         textView.setText(updateDate);
+
+        menuFloat.setOnMenuButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabLink.setOnClickListener(clickListener);
+                fabMap.setOnClickListener(clickListener);
+                fabPhone.setOnClickListener(clickListener);
+                menuFloat.toggle(true);
+            }
+        });
+        createCustomAnimation();
 
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer_FD);
         if (swipeContainer != null) {
@@ -244,14 +308,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
-    public Loader onCreateLoader(int id, Bundle args) {
-        return new GetDbCurrencies(context, args);
+    public Loader<ArrayList<Currency>> onCreateLoader(int id, Bundle args) {
+        return new GetDbCurrencies<ArrayList<Currency>>(context, args);
     }
 
     @Override
-    public void onLoadFinished(Loader loader, Object _data) {
+    public void onLoadFinished(Loader<ArrayList<Currency>> loader, ArrayList<Currency> _data) {
         if (_data != null) {
-            presenter.presenterSetRV((ArrayList<Currency>) _data);
+            presenter.presenterSetRV(_data);
         } else {
             Toast.makeText(context, getResources().getString(R.string.msg_no_data_geted), Toast.LENGTH_SHORT).show();
         }
@@ -260,5 +324,27 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoaderReset(Loader loader) {
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "_________________ onSaveInstanceState");
+
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable(KEY_BANK_DATA, bank);
+        outState.putParcelableArrayList(KEY_ARRAY_LIST, courseList);
+
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "_________________ onViewStateRestored savedInstanceState isnull=" + (savedInstanceState == null));
+
+        if (savedInstanceState != null) {
+            bank = savedInstanceState.getParcelable(KEY_BANK_DATA);
+            courseList = savedInstanceState.getParcelableArrayList(KEY_ARRAY_LIST);
+        }
+        super.onViewStateRestored(savedInstanceState);
     }
 }

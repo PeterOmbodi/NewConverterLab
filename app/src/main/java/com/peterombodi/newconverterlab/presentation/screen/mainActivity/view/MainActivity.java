@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.main.view;
+package com.peterombodi.newconverterlab.presentation.screen.mainActivity.view;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -35,11 +35,11 @@ import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.global.Constants;
 import com.peterombodi.newconverterlab.presentation.R;
 import com.peterombodi.newconverterlab.presentation.screen.legalNotice.LegalNoticesActivity;
-import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
-import com.peterombodi.newconverterlab.presentation.screen.main.presenter.MainScreenPresenter;
+import com.peterombodi.newconverterlab.presentation.screen.mainActivity.IMainScreen;
+import com.peterombodi.newconverterlab.presentation.screen.mainActivity.presenter.MainScreenPresenter;
 import com.peterombodi.newconverterlab.presentation.screen.mapFragment.MapViewFragment;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_detail.view.DetailFragment;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.view.BankListFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisationDetail.view.DetailFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisationList.view.BankListFragment;
 
 import java.util.ArrayList;
 

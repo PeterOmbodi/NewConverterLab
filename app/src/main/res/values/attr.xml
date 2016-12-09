@@ -1,0 +1,41 @@
+<resources>
+    <declare-styleable name="CoursesView">
+
+        <attr name="titleColor" format="color"/>
+        <attr name="subTitleColor" format="color"/>
+        <attr name="nameColor" format="color"/>
+        <attr name="valueColor" format="color"/>
+        <attr name="canvasColor" format="color"/>
+
+        <attr name="titleSize" format="dimension"/>
+        <attr name="subTitleSize" format="dimension"/>
+        <attr name="nameSize" format="dimension"/>
+        <attr name="valueSize" format="dimension"/>
+
+        <attr name="titleStyle" format="enum">
+            <enum name="normal" value="0"/>
+            <enum name="bold" value="1"/>
+            <enum name="italic" value="2"/>
+
+        </attr>
+        <attr name="subTitleStyle" format="dimension">
+            <enum name="normal" value="0"/>
+            <enum name="bold" value="1"/>
+            <enum name="italic" value="2"/>
+
+        </attr>
+        <attr name="nameStyle" format="dimension">
+            <enum name="normal" value="0"/>
+            <enum name="bold" value="1"/>
+            <enum name="italic" value="2"/>
+
+        </attr>
+        <attr name="valueStyle" format="dimension">
+            <enum name="normal" value="0"/>
+            <enum name="bold" value="1"/>
+            <enum name="italic" value="2"/>
+
+        </attr>
+
+    </declare-styleable>
+</resources>

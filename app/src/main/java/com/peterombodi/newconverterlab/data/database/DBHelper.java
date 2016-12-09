@@ -29,7 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String ADDRESS_COLUMN = "address";
     public static final String LINK_COLUMN = "link";
     static final String ORG_ID_COLUMN = "orgId";
-    static final String CURRENCY_ID_COLUMN = "currencyId";
+    public static final String CURRENCY_ID_COLUMN = "currencyId";
     public static final String ASK_COLUMN = "ask";
     public static final String BID_COLUMN = "bid";
     public static final String ASK_DELTA_COLUMN = "askDelta";

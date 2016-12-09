@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_detail.presenter;
+package com.peterombodi.newconverterlab.presentation.screen.organisationDetail.presenter;
 
 import android.util.Log;
 
@@ -7,7 +7,7 @@ import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.domain.Domain;
 import com.peterombodi.newconverterlab.domain.DomainImpl;
 import com.peterombodi.newconverterlab.presentation.screen.base.ResponseCallback;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_detail.IDetailFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisationDetail.IDetailFragment;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by Admin on 02.12.2016.
  */
 
-public class DetailPresenter implements IDetailFragment.IPresenter,ResponseCallback<DataResponse> {
+public class DetailPresenter implements IDetailFragment.IPresenter, ResponseCallback<DataResponse> {
 
     private static final String TAG = "DetailPresenter";
     private IDetailFragment.IView mView;
@@ -25,14 +25,14 @@ public class DetailPresenter implements IDetailFragment.IPresenter,ResponseCallb
     public void registerView(IDetailFragment.IView _view) {
         this.mView = _view;
         Log.d(TAG, "------------------ registerView");
-        if (mDomain==null) mDomain = new DomainImpl();
+        if (mDomain == null) mDomain = new DomainImpl();
         mDomain.setCallback(this);
     }
 
     @Override
     public void unRegisterView() {
         mView = null;
-        if (mDomain!=null) mDomain.releaseCallback();
+        if (mDomain != null) mDomain.releaseCallback();
     }
 
     @Override
@@ -44,8 +44,8 @@ public class DetailPresenter implements IDetailFragment.IPresenter,ResponseCallb
     public void refreshData(String _bankId) {
         mDomain = new DomainImpl();
         //mDomain.getDetailData((IDetailFragment.ResponseCallback) this, _bankId);
-        Log.d(TAG,"*************** refreshData");
-        mDomain.getData(this,_bankId);
+        Log.d(TAG, "*************** refreshData");
+        mDomain.getData(this, _bankId);
     }
 
 
@@ -73,8 +73,9 @@ public class DetailPresenter implements IDetailFragment.IPresenter,ResponseCallb
 
     // данные записаны
     @Override
-    public void onSavedData(int _records,String _bankId) {
+    public void onSavedData(int _records, String _bankId, String _updateDate) {
         mView.getDbData(_bankId);
+        mView.setUpdateDate(_updateDate);
     }
 
     @Override

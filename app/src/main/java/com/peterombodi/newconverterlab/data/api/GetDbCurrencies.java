@@ -16,13 +16,14 @@ import static com.peterombodi.newconverterlab.data.database.DBHelper.ASK_COLUMN;
 import static com.peterombodi.newconverterlab.data.database.DBHelper.ASK_DELTA_COLUMN;
 import static com.peterombodi.newconverterlab.data.database.DBHelper.BID_COLUMN;
 import static com.peterombodi.newconverterlab.data.database.DBHelper.BID_DELTA_COLUMN;
+import static com.peterombodi.newconverterlab.data.database.DBHelper.CURRENCY_ID_COLUMN;
 import static com.peterombodi.newconverterlab.data.database.DBHelper.NAME_COLUMN;
 
 /**
  * Created by Admin on 01.12.2016.
  */
 
-public class GetDbCurrencies extends AsyncTaskLoader<ArrayList<Currency>> {
+public class GetDbCurrencies<A> extends AsyncTaskLoader<ArrayList<Currency>> {
 
     private static final String TAG = "GetDbCurrencies";
     public static final String ARGS_BANK_ID = "ARGS_BANK_ID";
@@ -76,6 +77,8 @@ public class GetDbCurrencies extends AsyncTaskLoader<ArrayList<Currency>> {
                         cursor.getColumnIndex(ASK_DELTA_COLUMN)));
                 currency.setBidDelta(cursor.getString(
                         cursor.getColumnIndex(BID_DELTA_COLUMN)));
+                currency.setCurrencyId(cursor.getString(
+                        cursor.getColumnIndex(CURRENCY_ID_COLUMN)));
 
                 currencies.add(currency);
                 cursor.moveToNext();

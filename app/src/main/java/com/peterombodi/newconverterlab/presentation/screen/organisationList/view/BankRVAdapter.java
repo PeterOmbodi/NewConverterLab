@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_list.view;
+package com.peterombodi.newconverterlab.presentation.screen.organisationList.view;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.global.Constants;
 import com.peterombodi.newconverterlab.presentation.R;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.presenter.BankRVHolders;
+import com.peterombodi.newconverterlab.presentation.screen.organisationList.IListFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisationList.presenter.BankRVHolders;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

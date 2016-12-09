@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_detail.presenter;
+package com.peterombodi.newconverterlab.presentation.screen.organisationDetail.presenter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.peterombodi.newconverterlab.presentation.R;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_detail.IDetailFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisationDetail.IDetailFragment;
 
 
 /**

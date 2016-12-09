@@ -5,157 +5,170 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:tag="DETAIL_FRAGMENT_TAG">
 
-    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipeContainer_FD"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <include layout="@layout/toolbar" />
 
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/scrollView"
+
+        <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swipeContainer_FD"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
 
-
-            <LinearLayout
+            <android.support.v4.widget.NestedScrollView
+                android:id="@+id/scrollView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
-                <android.support.v7.widget.CardView
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    card_view:cardElevation="@dimen/cardview_default_elevation"
-                    card_view:cardUseCompatPadding="true">
+                    android:orientation="vertical">
 
-                    <LinearLayout
+                    <android.support.v7.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/colorCard"
-                        android:orientation="vertical">
+                        card_view:cardElevation="@dimen/cardview_default_elevation"
+                        card_view:cardUseCompatPadding="true">
 
-                        <TextView
-                            android:id="@+id/tv_name_FD"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_margin="@dimen/activity_0.5step_margin"
-                            android:textColor="@color/colorAccent"
-                            android:textSize="@dimen/title_text_size"
-                            android:textStyle="bold"
-                            tools:text="First National Bank" />
-
-
-                        <LinearLayout style="@style/LinerLayoutFD">
-
-                            <TextView
-                                style="@style/TextTitleFD"
-                                android:text="@string/address" />
-
-                            <TextView
-                                android:id="@+id/tv_address_FD"
-                                style="@style/TextFieldFD"
-                                tools:text="Deadwood" />
-                        </LinearLayout>
-
-
-                        <LinearLayout style="@style/LinerLayoutFD">
-
-                            <TextView
-                                style="@style/TextTitleFD"
-                                android:text="@string/phone" />
-
-                            <TextView
-                                android:id="@+id/tv_phone_FD"
-                                style="@style/TextFieldFD"
-                                tools:text="ask for Seth Bullock" />
-                        </LinearLayout>
-
-                    </LinearLayout>
-                </android.support.v7.widget.CardView>
-
-                <android.support.v7.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    card_view:cardElevation="@dimen/cardview_default_elevation"
-                    card_view:cardUseCompatPadding="true">
-
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:background="@color/colorCard"
                             android:orientation="vertical">
 
                             <TextView
-                                style="@style/TextFieldFD"
-                                android:layout_width="wrap_content"
-                                android:layout_gravity="center"
-                                android:text="@string/currency_name" />
-
-                            <TextView
-                                android:id="@+id/tv_update_FD"
-                                android:layout_width="wrap_content"
+                                android:id="@+id/tv_name_FD"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_margin="@dimen/activity_0.5step_margin"
+                                android:textColor="@color/colorAccent"
+                                android:textSize="@dimen/title_text_size"
+                                android:textStyle="bold"
+                                tools:text="First National Bank" />
 
-                                android:layout_gravity="center"
 
-                                android:text="@string/currency_name"
-                                android:textSize="@dimen/small_text"
-                                android:textStyle="italic" />
+                            <LinearLayout style="@style/LinerLayoutFD">
+
+                                <TextView
+                                    style="@style/TextTitleFD"
+                                    android:text="@string/address" />
+
+                                <TextView
+                                    android:id="@+id/tv_address_FD"
+                                    style="@style/TextFieldFD"
+                                    tools:text="Deadwood" />
+                            </LinearLayout>
+
+
+                            <LinearLayout style="@style/LinerLayoutFD">
+
+                                <TextView
+                                    style="@style/TextTitleFD"
+                                    android:text="@string/phone" />
+
+                                <TextView
+                                    android:id="@+id/tv_phone_FD"
+                                    style="@style/TextFieldFD"
+                                    tools:text="ask for Seth Bullock" />
+                            </LinearLayout>
 
                         </LinearLayout>
+                    </android.support.v7.widget.CardView>
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.8"
-                            android:orientation="vertical">
-
-                            <TextView
-                                style="@style/TextTitleFD"
-                                android:layout_gravity="right"
-                                android:paddingRight="@dimen/activity_2step_margin"
-                                android:text="@string/ask" />
-
-                            <TextView
-                                style="@style/TextTitleFD"
-                                android:layout_gravity="right"
-                                android:paddingRight="@dimen/activity_2step_margin"
-                                android:text="@string/bid" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-
-                </android.support.v7.widget.CardView>
-
-                <android.support.v7.widget.CardView
-                    android:id="@+id/courses_cv_FD"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    card_view:cardElevation="@dimen/cardview_default_elevation"
-                    card_view:cardUseCompatPadding="true">
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rv_currencies_FD"
+                    <android.support.v7.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
-
-                </android.support.v7.widget.CardView>
-            </LinearLayout>
-
-        </android.support.v4.widget.NestedScrollView>
+                        card_view:cardElevation="@dimen/cardview_default_elevation"
+                        card_view:cardUseCompatPadding="true">
 
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    style="@style/TextFieldFD"
+                                    android:layout_width="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:text="@string/currency_name" />
+
+                                <TextView
+                                    android:id="@+id/tv_update_FD"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+
+                                    android:layout_gravity="center"
+
+                                    android:text="@string/currency_name"
+                                    android:textSize="@dimen/small_text"
+                                    android:textStyle="italic" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.8"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    style="@style/TextTitleFD"
+                                    android:layout_gravity="right"
+                                    android:paddingRight="@dimen/activity_2step_margin"
+                                    android:text="@string/ask" />
+
+                                <TextView
+                                    style="@style/TextTitleFD"
+                                    android:layout_gravity="right"
+                                    android:paddingRight="@dimen/activity_2step_margin"
+                                    android:text="@string/bid" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+
+                    </android.support.v7.widget.CardView>
+
+                    <android.support.v7.widget.CardView
+                        android:id="@+id/courses_cv_FD"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        card_view:cardElevation="@dimen/cardview_default_elevation"
+                        card_view:cardUseCompatPadding="true">
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rv_currencies_FD"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+
+                    </android.support.v7.widget.CardView>
+                </LinearLayout>
+
+            </android.support.v4.widget.NestedScrollView>
+
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </LinearLayout>
 
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/menu_float"

@@ -10,4 +10,6 @@
     <color name="colorThirdText">#465a64</color>
     <color name="colorMenuBar">#afbec5</color>
     <color name="colorCard">#fafafa</color>
+    <color name="colorUp">#036166</color>
+    <color name="colorDown">#891051</color>
 </resources>

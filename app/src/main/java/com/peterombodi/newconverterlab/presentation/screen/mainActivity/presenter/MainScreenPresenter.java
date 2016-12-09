@@ -1,11 +1,11 @@
-package com.peterombodi.newconverterlab.presentation.screen.main.presenter;
+package com.peterombodi.newconverterlab.presentation.screen.mainActivity.presenter;
 
 import com.peterombodi.newconverterlab.data.model.Currency;
 import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.data.model.Organization;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.domain.Domain;
-import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
+import com.peterombodi.newconverterlab.presentation.screen.mainActivity.IMainScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;

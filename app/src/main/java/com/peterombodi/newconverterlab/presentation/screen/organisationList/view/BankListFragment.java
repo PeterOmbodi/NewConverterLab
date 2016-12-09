@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.organisation_list.view;
+package com.peterombodi.newconverterlab.presentation.screen.organisationList.view;
 
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -10,8 +10,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,9 +27,9 @@ import android.widget.Toast;
 import com.peterombodi.newconverterlab.data.api.GetDbOrganizations;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 import com.peterombodi.newconverterlab.presentation.R;
-import com.peterombodi.newconverterlab.presentation.screen.main.IMainScreen;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.IListFragment;
-import com.peterombodi.newconverterlab.presentation.screen.organisation_list.presenter.BankListPresenter;
+import com.peterombodi.newconverterlab.presentation.screen.mainActivity.IMainScreen;
+import com.peterombodi.newconverterlab.presentation.screen.organisationList.IListFragment;
+import com.peterombodi.newconverterlab.presentation.screen.organisationList.presenter.BankListPresenter;
 
 import java.util.ArrayList;
 
@@ -41,7 +43,7 @@ public class BankListFragment extends Fragment implements
         LoaderManager.LoaderCallbacks {
 
     private static final String TAG = "BankListFragment";
-//    static final int LOADER_GEOCODER_ID = 1;
+    //    static final int LOADER_GEOCODER_ID = 1;
     static final int LOADER_DATABASE_ID = 2;
     private static final String SEARCH_KEY = "SEARCH_KEY";
 
@@ -71,6 +73,8 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, ">>>> onCreate ");
+
         /* Если передать в него true, то при пересоздании фрагмента не будут вызваны методы
         onDestroy и onCreate, и не будет создан новый экземпляр класса Fragment. */
         setRetainInstance(true);
@@ -81,15 +85,18 @@ public class BankListFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, ">>>> onCreateView");
-
+        Log.d(TAG, ">>>> onCreateView ");
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         context = getActivity();
-        recyclerView = (RecyclerView) view.findViewById(R.id.rv_banks_FL);
-
         presenter.registerView(this);
         iGetAction = (IMainScreen.IGetAction) context;
+
+        Toolbar mActionBarToolbar = (Toolbar) view.findViewById(R.id.toolbar_actionbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(mActionBarToolbar);
         setHasOptionsMenu(true);
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv_banks_FL);
+
+
         // Lookup the swipe container view
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer_FL);
         if (swipeContainer != null) {
@@ -98,7 +105,6 @@ public class BankListFragment extends Fragment implements
                 public void onRefresh() {
                     item.collapseActionView();
                     presenter.refreshData();
-
                 }
             });
             // Configure the refreshing colors
@@ -110,6 +116,7 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.d(TAG, ">>>> onCreateOptionsMenu ");
         inflater.inflate(R.menu.menu_option, menu);
         item = menu.findItem(R.id.search);
 
@@ -162,8 +169,11 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public boolean onQueryTextChange(String _query) {
-        Log.d(TAG,"************************ onQueryTextChange");
-        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) getDbData(_query);
+        Log.d(TAG, ">>>>>>>> onQueryTextChange");
+        if ((getLoaderManager().getLoader(LOADER_DATABASE_ID) == null)
+                || !_query.isEmpty() || (searchQuery != null && !searchQuery.isEmpty()))
+            getDbData(_query);
+        searchQuery = _query;
         return false;
     }
 
@@ -211,10 +221,10 @@ public class BankListFragment extends Fragment implements
         Bundle bundle = new Bundle();
         bundle.putString(GetDbOrganizations.ARGS_FILTER, _string);
         if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) {
-            Log.d(TAG,"************* initLoader");
+            Log.d(TAG, "************* initLoader");
             getLoaderManager().initLoader(LOADER_DATABASE_ID, bundle, this);
         } else {
-            Log.d(TAG,"************* restartLoader");
+            Log.d(TAG, "************* restartLoader");
             getLoaderManager().restartLoader(LOADER_DATABASE_ID, bundle, this);
         }
     }
@@ -227,12 +237,11 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader loader, Object _data) {
-        Log.d(TAG,"++++* onLoadFinished loader id = "+ loader.getId());
+        Log.d(TAG, "++++* onLoadFinished loader id = " + loader.getId());
         if (_data != null) {
             ArrayList<OrganizationRV> arrayList = (ArrayList<OrganizationRV>) _data;
-            if (arrayList.size()==0
-                    && (((searchView != null) && searchView.getQuery().toString().isEmpty()) || (searchView == null)))
-            {
+            if (arrayList.size() == 0
+                    && (((searchView != null) && searchView.getQuery().toString().isEmpty()) || (searchView == null))) {
                 presenter.refreshData();
             } else {
                 presenter.presenterSetRV(arrayList);
@@ -268,6 +277,7 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, ">>>>>>> onSaveInstanceState ");
         super.onSaveInstanceState(outState);
         searchQuery = (searchView != null) ? searchView.getQuery().toString() : null;
         outState.putString(SEARCH_KEY, searchQuery);
@@ -275,6 +285,7 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, ">>>>>> onViewStateRestored savedInstanceState isnull=" + (savedInstanceState == null));
         if (savedInstanceState != null) {
             searchQuery = savedInstanceState.getString(SEARCH_KEY);
         }

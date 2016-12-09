@@ -21,6 +21,8 @@ public class Constants {
     public static final String TAG_MAP_FRAGMENT = "TAG_MAP_FRAGMENT";
     public static final String TAG_DETAIL_FRAGMENT = "TAG_DETAIL_FRAGMENT";
     public static final String TAG_BANK_LIST_FRAGMENT = "TAG_BANK_LIST_FRAGMENT";
+    public static final String TAG_DIALOG_SHARE_FRAGMENT = "TAG_DIALOG_SHARE_FRAGMENT";
+
 
     public static final String KEY_ARRAY_LIST = "KEY_ARRAY_LIST";
     public static final String KEY_BANK = "KEY_BANK";

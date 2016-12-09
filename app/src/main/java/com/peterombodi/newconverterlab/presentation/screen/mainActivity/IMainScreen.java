@@ -1,4 +1,4 @@
-package com.peterombodi.newconverterlab.presentation.screen.main;
+package com.peterombodi.newconverterlab.presentation.screen.mainActivity;
 
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
 
