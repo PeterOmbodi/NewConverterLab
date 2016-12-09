@@ -64,7 +64,7 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void onAttach(Context context) {
-        Log.d(TAG, ">>>>>>>>>>> onAttach");
+        Log.d(TAG, ">>>>>>>>>>> onAttach  (presenter == null) - "+(presenter == null));
         if (presenter == null) presenter = new BankListPresenter();
         super.onAttach(context);
     }
