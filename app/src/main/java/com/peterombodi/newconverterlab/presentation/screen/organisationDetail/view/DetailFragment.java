@@ -95,9 +95,8 @@ public class DetailFragment extends Fragment
             if (bank != null) getDbData(bank.getId());
 
         }
-        initializeViews();
-
-
+        if (savedInstanceState==null)
+            initializeViews();
         return view;
     }
 
@@ -344,6 +343,8 @@ public class DetailFragment extends Fragment
         if (savedInstanceState != null) {
             bank = savedInstanceState.getParcelable(KEY_BANK_DATA);
             courseList = savedInstanceState.getParcelableArrayList(KEY_ARRAY_LIST);
+            initializeViews();
+            presenter.presenterSetRV(courseList);
         }
         super.onViewStateRestored(savedInstanceState);
     }

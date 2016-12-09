@@ -87,9 +87,10 @@ public class BankListFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         context = getActivity();
 
+        presenter.registerView(this);
+        iGetAction = (IMainScreen.IGetAction) context;
+
         if (savedInstanceState==null) {
-            presenter.registerView(this);
-            iGetAction = (IMainScreen.IGetAction) context;
         }
 
 
@@ -135,7 +136,6 @@ public class BankListFragment extends Fragment implements
             ///searchView.clearFocus();
             Log.d(TAG, ">>>> onCreateOptionsMenu query = " + searchView.getQuery() + "/ searchQuery = " + searchQuery);
         }
-
     }
 
 
@@ -155,18 +155,18 @@ public class BankListFragment extends Fragment implements
             progressDialog.dismiss();
             progressDialog = null;
         }
-//        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) != null) {
-//            getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
-//        }
-
-
+        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) != null) {
+            getLoaderManager().destroyLoader(LOADER_DATABASE_ID);
+        }
+        presenter.unRegisterView();
+        iGetAction = null;
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        presenter.unRegisterView();
-        iGetAction = null;
+//        presenter.unRegisterView();
+//        iGetAction = null;
         super.onDestroy();
     }
 
