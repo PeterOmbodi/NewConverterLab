@@ -4,7 +4,7 @@ import com.peterombodi.newconverterlab.data.model.Currency;
 import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.data.model.Organization;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
-import com.peterombodi.newconverterlab.domain.Domain;
+import com.peterombodi.newconverterlab.domain.IDomain;
 import com.peterombodi.newconverterlab.presentation.screen.mainActivity.IMainScreen;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class MainScreenPresenter implements IMainScreen.IPresenter, IMainScreen.
 
     private static final String TAG = "MainScreenPresenter";
 
-    private Domain mDomain;
+    private IDomain mDomain;
     private IMainScreen.IView mView;
     private ArrayList<OrganizationRV> rvArrayList;
 

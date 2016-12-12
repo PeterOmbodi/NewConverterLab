@@ -16,6 +16,7 @@ public interface IListFragment {
 
         void presenterSetRV(ArrayList<OrganizationRV> _rvArrayList);
         void refreshData();
+        void getDbData(String _filter);
 
         void presenterOpenDetail(OrganizationRV _organizationRV);
         void presenterOpenLink(String _url);

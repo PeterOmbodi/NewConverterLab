@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.peterombodi.newconverterlab.data.model.Currency;
 import com.peterombodi.newconverterlab.data.model.DataResponse;
-import com.peterombodi.newconverterlab.domain.Domain;
+import com.peterombodi.newconverterlab.domain.IDomain;
 import com.peterombodi.newconverterlab.domain.DomainImpl;
 import com.peterombodi.newconverterlab.presentation.screen.base.ResponseCallback;
 import com.peterombodi.newconverterlab.presentation.screen.organisationDetail.IDetailFragment;
@@ -19,7 +19,7 @@ public class DetailPresenter implements IDetailFragment.IPresenter, ResponseCall
 
     private static final String TAG = "DetailPresenter";
     private IDetailFragment.IView mView;
-    private Domain mDomain;
+    private IDomain mDomain;
 
     @Override
     public void registerView(IDetailFragment.IView _view) {

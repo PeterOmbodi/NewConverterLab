@@ -114,6 +114,7 @@ public class DownloadDataImpl implements DownloadData {
 
 
     private void saveData(final DataResponse _dataResponse, final ResponseCallback<DataResponse> _callback, String _bankId) {
+        Log.d(TAG,">>>>>>>>>>>>+ saveData");
         if (_callback != null) setHandler();
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new RunnableSaveTask(_dataResponse, _callback, _bankId) {
@@ -191,6 +192,7 @@ public class DownloadDataImpl implements DownloadData {
 
         @Override
         public void run() {
+            Log.d(TAG,">>>>>>>>>>>>>>>>>>+ - RunnableSaveTask.run()");
             CoursesLabDb db;
             db = new CoursesLabDb(Application.getContext());
             db.open();

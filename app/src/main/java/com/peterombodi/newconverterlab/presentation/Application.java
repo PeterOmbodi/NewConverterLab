@@ -25,6 +25,9 @@ public class Application extends android.app.Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+
+        ObjectGraph.getInstance(getApplicationContext());   //init ObjectGraph when application created
+
         Log.d(TAG,">>>>>> onCreate");
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
         Job myJob = dispatcher.newJobBuilder()

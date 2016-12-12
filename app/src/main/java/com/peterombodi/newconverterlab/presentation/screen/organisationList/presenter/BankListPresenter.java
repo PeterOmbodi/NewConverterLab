@@ -4,8 +4,9 @@ import android.util.Log;
 
 import com.peterombodi.newconverterlab.data.model.DataResponse;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
-import com.peterombodi.newconverterlab.domain.Domain;
-import com.peterombodi.newconverterlab.domain.DomainImpl;
+import com.peterombodi.newconverterlab.domain.IDomain;
+import com.peterombodi.newconverterlab.presentation.Application;
+import com.peterombodi.newconverterlab.presentation.ObjectGraph;
 import com.peterombodi.newconverterlab.presentation.screen.base.ResponseCallback;
 import com.peterombodi.newconverterlab.presentation.screen.organisationList.IListFragment;
 
@@ -20,13 +21,22 @@ public class BankListPresenter implements IListFragment.IPresenter, ResponseCall
     private static final String TAG = "BankListPresenter";
 
     private IListFragment.IView mView;
-    private Domain mDomain;
+    private IDomain mDomain;
+    private ObjectGraph mGraph;
+    private boolean isSavingData;
 
     @Override
     public void registerView(IListFragment.IView _view) {
         this.mView = _view;
         Log.d(TAG, ">>>>>>> registerView mView isnull = " + (mView == null));
-        if (mDomain!=null) mDomain.setCallback(this);
+        if (mDomain == null){
+
+            mGraph = ObjectGraph.getInstance(Application.getContext());
+            mDomain = mGraph.getDomainModule();
+//            mDomain = new DomainImpl();
+            mDomain.setCallback(this);
+        }
+//        if (mDomain != null) mDomain.setCallback(this);
 
     }
 
@@ -35,33 +45,42 @@ public class BankListPresenter implements IListFragment.IPresenter, ResponseCall
     public void unRegisterView() {
         Log.d(TAG, ">>>>>>>>> unRegisterView");
         mView = null;
-       if (mDomain!=null) mDomain.releaseCallback();
+//        if (mDomain != null) mDomain.releaseCallback();
     }
 
     @Override
     public void presenterSetRV(ArrayList<OrganizationRV> _rvArrayList) {
-        Log.d(TAG,">>>>>>> presenterSetRV _rvArrayList.size()="+_rvArrayList.size());
+        Log.d(TAG, ">>>>>>> presenterSetRV _rvArrayList.size()=" + _rvArrayList.size());
         if (mView != null) mView.setRvArrayList(_rvArrayList);
     }
 
     @Override
     public void refreshData() {
-        mDomain = new DomainImpl();
-        mDomain.getData(this,null);
         Log.d(TAG, ">>>>>>>>> refreshData  mView isnull = " + (mView == null));
+
+        mGraph = ObjectGraph.getInstance(Application.getContext());
+        mDomain = mGraph.getDomainModule();
+        mDomain.getData(this, null);
+        isSavingData = true;
+
+    }
+
+    @Override
+    public void getDbData(String _filter) {
+        if (mView != null && !isSavingData ) mView.getDbData(_filter);
     }
 
 
     @Override
     public void onRefreshResponse(DataResponse _data) {
-        // TODO: 26.11.2016 здесь получаем колво
         Log.d(TAG, "onRefreshResponse >>>>------------------" + _data.getOrganizations().size());
     }
 
     @Override
-    public void onSavedData(int _records,String _bankId,String _updateDate) {
+    public void onSavedData(int _records, String _bankId, String _updateDate) {
         Log.d(TAG, "onSavedData >>>>------------------" + _records + "/ mView isnull = " + (mView == null));
         //getBankList(null);
+        isSavingData = false;
         if (mView != null) mView.getDbData(null);
 
     }
@@ -79,7 +98,7 @@ public class BankListPresenter implements IListFragment.IPresenter, ResponseCall
 
     @Override
     public void presenterOpenDetail(OrganizationRV _organizationRV) {
-        Log.d(TAG,"presenterOpenDetail mView isnull - "+ (mView==null));
+        Log.d(TAG, "presenterOpenDetail mView isnull - " + (mView == null));
         mView.viewOpenDetail(_organizationRV);
     }
 

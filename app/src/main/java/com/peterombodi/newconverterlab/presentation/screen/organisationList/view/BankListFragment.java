@@ -26,10 +26,11 @@ import android.widget.Toast;
 
 import com.peterombodi.newconverterlab.data.api.GetDbOrganizations;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
+import com.peterombodi.newconverterlab.presentation.Application;
+import com.peterombodi.newconverterlab.presentation.ObjectGraph;
 import com.peterombodi.newconverterlab.presentation.R;
 import com.peterombodi.newconverterlab.presentation.screen.mainActivity.IMainScreen;
 import com.peterombodi.newconverterlab.presentation.screen.organisationList.IListFragment;
-import com.peterombodi.newconverterlab.presentation.screen.organisationList.presenter.BankListPresenter;
 
 import java.util.ArrayList;
 
@@ -40,7 +41,7 @@ import java.util.ArrayList;
 public class BankListFragment extends Fragment implements
         IListFragment.IView,
         SearchView.OnQueryTextListener,
-        LoaderManager.LoaderCallbacks {
+        LoaderManager.LoaderCallbacks<ArrayList<OrganizationRV>> {
 
     private static final String TAG = "BankListFragment";
     static final int LOADER_DATABASE_ID = 2;
@@ -57,6 +58,7 @@ public class BankListFragment extends Fragment implements
     private String searchQuery;
     private MenuItem item;
 
+    private ObjectGraph mGraph;
 
     public BankListFragment() {
     }
@@ -64,8 +66,14 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void onAttach(Context context) {
-        Log.d(TAG, ">>>>>>>>>>> onAttach  (presenter == null) - "+(presenter == null));
-        if (presenter == null) presenter = new BankListPresenter();
+        Log.d(TAG, ">>>>>>>>>>>=- onAttach  (presenter == null) - "+(presenter == null));
+        if (presenter == null) {
+
+            mGraph = ObjectGraph.getInstance(Application.getContext());
+            presenter = mGraph.getPresenterModule();
+            Log.d(TAG,">>>>>>>>>>>=- presenter.toString() = "+presenter.toString());
+//            presenter = new BankListPresenter();
+        }
         super.onAttach(context);
     }
 
@@ -75,7 +83,7 @@ public class BankListFragment extends Fragment implements
 
         /* Если передать в него true, то при пересоздании фрагмента не будут вызваны методы
         onDestroy и onCreate, и не будет создан новый экземпляр класса Fragment. */
-        setRetainInstance(true);
+        //setRetainInstance(true);
         super.onCreate(savedInstanceState);
     }
 
@@ -89,9 +97,6 @@ public class BankListFragment extends Fragment implements
 
         presenter.registerView(this);
         iGetAction = (IMainScreen.IGetAction) context;
-
-        if (savedInstanceState==null) {
-        }
 
 
         Toolbar mActionBarToolbar = (Toolbar) view.findViewById(R.id.toolbar_actionbar);
@@ -143,7 +148,7 @@ public class BankListFragment extends Fragment implements
     public void onResume() {
         Log.d(TAG, ">>>>----- onResume ");
 
-        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) getDbData(null);
+        if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) presenter.getDbData(null);
 
         super.onResume();
     }
@@ -180,7 +185,9 @@ public class BankListFragment extends Fragment implements
         Log.d(TAG, ">>>>>>>> onQueryTextChange");
         if ((getLoaderManager().getLoader(LOADER_DATABASE_ID) == null)
                 || !_query.isEmpty() || (searchQuery != null && !searchQuery.isEmpty()))
-            getDbData(_query);
+
+            presenter.getDbData(_query);
+
         searchQuery = _query;
         return false;
     }
@@ -224,6 +231,7 @@ public class BankListFragment extends Fragment implements
 
     @Override
     public void getDbData(String _string) {
+
         Bundle bundle = new Bundle();
         bundle.putString(GetDbOrganizations.ARGS_FILTER, _string);
         if (getLoaderManager().getLoader(LOADER_DATABASE_ID) == null) {
@@ -237,20 +245,20 @@ public class BankListFragment extends Fragment implements
 
 
     @Override
-    public Loader onCreateLoader(int id, Bundle args) {
+    public Loader<ArrayList<OrganizationRV>> onCreateLoader(int id, Bundle args) {
         return new GetDbOrganizations(context, args);
     }
 
+
     @Override
-    public void onLoadFinished(Loader loader, Object _data) {
+    public void onLoadFinished(Loader<ArrayList<OrganizationRV>> loader, ArrayList<OrganizationRV> _data) {
         Log.d(TAG, "++++* onLoadFinished loader id = " + loader.getId());
         if (_data != null) {
-            ArrayList<OrganizationRV> arrayList = (ArrayList<OrganizationRV>) _data;
-            if (arrayList.size() == 0
+            if (_data.size() == 0
                     && (((searchView != null) && searchView.getQuery().toString().isEmpty()) || (searchView == null))) {
                 presenter.refreshData();
             } else {
-                presenter.presenterSetRV(arrayList);
+                presenter.presenterSetRV(_data);
             }
 
         } else {
