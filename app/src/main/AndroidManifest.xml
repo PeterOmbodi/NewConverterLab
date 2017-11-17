@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -31,23 +32,23 @@
         <!--android:name="com.google.android.geo.API_KEY"-->
         <!--android:value="AIzaSyCfxkxXnsVe09Z9olBso9ClswPoxGwxbQc" />-->
 
-        <activity android:name=".screen.mainActivity.view.MainActivity">
+        <activity android:name=".screen.view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".screen.legalNotice.LegalNoticesActivity" />
+        <activity android:name=".screen.view.LegalNoticesActivity" />
 
         <!--<service-->
-            <!--android:name="com.peterombodi.newconverterlab.data.downloader.DownloaderJobService"-->
+            <!--android:name="com.peterombodi.newconverterlab.services.DownloaderJobService"-->
             <!--android:exported="true"-->
             <!--android:permission="android.permission.BIND_JOB_SERVICE" />-->
 
         <service
             android:exported="false"
-            android:name="com.peterombodi.newconverterlab.data.downloader.DownloaderJobService"
+            android:name="com.peterombodi.newconverterlab.services.DownloaderJobService"
             android:permission="android.permission.BIND_JOB_SERVICE">
             <intent-filter>
                 <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>"

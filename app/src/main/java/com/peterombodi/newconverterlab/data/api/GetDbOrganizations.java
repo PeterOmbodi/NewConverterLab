@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.content.AsyncTaskLoader;
-import android.util.Log;
 
 import com.peterombodi.newconverterlab.data.database.CoursesLabDb;
 import com.peterombodi.newconverterlab.data.model.OrganizationRV;
@@ -32,11 +31,9 @@ public class GetDbOrganizations extends AsyncTaskLoader<ArrayList<OrganizationRV
     public final static String ARGS_FILTER = "filter";
     private String filter;
     private ArrayList<OrganizationRV> organizationRVList;
-//    private Context context;
 
     public GetDbOrganizations(Context context, Bundle args) {
         super(context);
-//        this.context = context;
         if (args != null)
             filter = args.getString(ARGS_FILTER);
     }
@@ -59,7 +56,6 @@ public class GetDbOrganizations extends AsyncTaskLoader<ArrayList<OrganizationRV
 
 
     private ArrayList<OrganizationRV> getDbData(String _filter) {
-        Log.d(TAG, " ************ getDbData ++++++++++++++++++++++++ ");
         CoursesLabDb db;
         db = new CoursesLabDb(Application.getContext());
         db.open();

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     custom:layout_collapseParallaxMultiplier="1.0"
-    tools:context="com.peterombodi.newconverterlab.presentation.screen.shareDialog.ShareFragment">
+    tools:context="com.peterombodi.newconverterlab.presentation.screen.dialog.ShareFragment">
 
     <ScrollView
         android:id="@+id/sv_SF"

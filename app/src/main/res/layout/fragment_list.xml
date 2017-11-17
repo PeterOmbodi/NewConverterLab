@@ -24,6 +24,7 @@
             android:id="@+id/rv_banks_FL"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:drawable/stat_sys_download"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
 
     </android.support.v4.widget.SwipeRefreshLayout>

@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
 
     static final String DB_NAME = "coursesLab.db";
-    static final int DB_VERSION = 2;
+    static final int DB_VERSION = 3;
     //tables
     static final String TBL_ORGANIZATIONS = "organizations";
     static final String TBL_COURSES = "courses";
@@ -40,6 +40,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String CITY_COLUMN = "city";
     public static final String DATE_DELTA_COLUMN = "dateDelta";
     public static final String UPDATE_FROM_UI_COLUMN = "updateUI";
+    public static final String UPDATE_COUNT_COLUMN = "updateCount";
 
 
     private static final String CREATE_ORGANIZATIONS = "create table "
@@ -87,7 +88,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String CREATE_UPDATES = "create table "
             + TBL_UPDATES + " (" + KEY_ID_COLUMN + " integer primary key autoincrement, "
             + UPDATE_FROM_UI_COLUMN + " integer not null, "
-            + DATE_COLUMN + " text not null "
+            + DATE_COLUMN + " text not null, "
+            + UPDATE_COUNT_COLUMN + " text not null "
             + ");";
 
 

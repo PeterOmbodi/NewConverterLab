@@ -29,7 +29,9 @@ public class Constants {
     public static final String KEY_ORGANIZATION = "organizations";
     public static final String KEY_PROGRESS = "KEY_PROGRESS";
 
-    public static final String FORMAT_DATE = "yyyy-MM-dd HH:mm";
+    public static final String FORMAT_SERVER_DATE = "yyyy-MM-dd'T'HH:mm:ssZ";
+    public static final String FORMAT_LOCAL_DATE = "dd/MM/yyyy HH:mm";
+    public static final String FORMAT_LOCAL_DATE_SHORT = "dd MMM HH:mm";
 
     public static final java.lang.String KEY_ADDRESS = "address";
     public static final String PARAM_BASE_URL_FINANCE_UA = "http://resources.finance.ua";

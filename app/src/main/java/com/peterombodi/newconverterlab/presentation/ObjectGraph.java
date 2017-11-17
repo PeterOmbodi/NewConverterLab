@@ -1,10 +1,8 @@
 package com.peterombodi.newconverterlab.presentation;
 
-import android.content.Context;
-
 import com.peterombodi.newconverterlab.domain.DomainImpl;
 import com.peterombodi.newconverterlab.domain.IDomain;
-import com.peterombodi.newconverterlab.presentation.screen.organisationList.presenter.BankListPresenter;
+import com.peterombodi.newconverterlab.presentation.screen.presenter.BankListPresenter;
 
 /**
  * Created by Admin on 09.12.2016.
@@ -14,9 +12,9 @@ public final class ObjectGraph {
 
     private static ObjectGraph graph;
 
-    public static final ObjectGraph getInstance(final Context _context) {
+    public static final ObjectGraph getInstance() {
         if (graph == null) {
-            graph = new ObjectGraph(_context);
+            graph = new ObjectGraph();
         }
         return graph;
     }
@@ -24,7 +22,7 @@ public final class ObjectGraph {
     private final IDomain mDomain;
     private final BankListPresenter presenter;
 
-    public ObjectGraph(final Context _context) {
+    public ObjectGraph() {
         mDomain = new DomainImpl();
         presenter = new BankListPresenter();
     }

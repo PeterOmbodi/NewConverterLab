@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.content.AsyncTaskLoader;
-import android.util.Log;
 
 import com.peterombodi.newconverterlab.data.database.CoursesLabDb;
 import com.peterombodi.newconverterlab.data.model.Currency;
@@ -30,8 +29,6 @@ public class GetDbCurrencies<A> extends AsyncTaskLoader<ArrayList<Currency>> {
     private ArrayList<Currency> currencies;
     private String bankId;
 
-//    private Context context;
-
     public GetDbCurrencies(Context context, Bundle args) {
         super(context);
         if (args != null)
@@ -56,7 +53,6 @@ public class GetDbCurrencies<A> extends AsyncTaskLoader<ArrayList<Currency>> {
 
 
     private ArrayList<Currency> getDbData(String _filter) {
-        Log.d(TAG, " ************ getDbData ++++++++++++++++++++++++ ");
         CoursesLabDb db;
         db = new CoursesLabDb(Application.getContext());
         db.open();
@@ -89,6 +85,5 @@ public class GetDbCurrencies<A> extends AsyncTaskLoader<ArrayList<Currency>> {
         this.currencies =currencies;
         return currencies;
     }
-
 
 }

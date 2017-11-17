@@ -1,25 +1,22 @@
 <resources>
-    <string name="app_name">Converter Lab2</string>
+    <string name="app_name">Converter Lab v2</string>
     <string name="msg_no_network">Отсутствует мобильный интернет или WiFi подключение!</string>
     <string name="msg_successfully_load">Удачно загружены</string>
     <string name="address">Адрес:</string>
     <string name="phone">Телефон:</string>
 
-    <!--<string name="title">title:</string>-->
     <string name="url">Сайт</string>
     <string name="map">Карта</string>
     <string name="call">Позвонить</string>
-    <!--<string name="menu_use_gson">Use GSON parsing</string>-->
 
-    <string name="activity_main_title">Converter Lab2</string>
-    <!--<string name="using_json">using JSON</string>-->
-    <!--<string name="using_gson">using GSON</string>-->
     <string name="menu_title1">Options</string>
     <string name="msg_parser_error">Parsing data error!</string>
     <string name="search_title">Введите название, регион, город</string>
     <string name="search_hint">Введите название, регион, город</string>
     <string name="ok">Ok</string>
     <string name="msg_permission_not_granted">Без полученного разрешения совершить звонок не удастся!</string>
+    <string name="msg_permission_location_not_granted">Не получено разрешение на определение местоположения!</string>
+    <string name="msg_permission_storage_not_granted">Не получено разрешение на использование накрпителя!</string>
     <string name="currency_name">Название валюты </string>
     <string name="ask">Покупка /</string>
     <string name="bid">Продажа</string>
@@ -34,8 +31,9 @@
     <string name="msg_no_data_geted">Не удалось получить данные из базы!</string>
     <string name="share_title">поделиться</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="msg_share_courser">Поделиться курсами</string>
     <string name="msg_no_app_share">Нет приложений для пересылки!</string>
+    <string name="last_update_date">состояние на:</string>
+    <string name="last_update_count">оганизаций:</string>
+
 </resources>
