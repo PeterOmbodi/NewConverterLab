@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.NotificationCompat;
@@ -130,10 +132,12 @@ public class DownloadDataImpl implements DownloadData {
 		mNotifyManager =
 			(NotificationManager) Application.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		mBuilder = new NotificationCompat.Builder(Application.getContext());
-		mBuilder.setContentTitle(Application.getContext().getResources().getString(R.string.app_name))
+		mBuilder
+			.setContentTitle(Application.getContext().getResources().getString(R.string.app_name))
 			.setContentText(Application.getContext().getResources().getString(R.string.download_in_progress))
 			.setContentIntent(pendingIntent)
-			.setSmallIcon(android.R.drawable.stat_sys_download);
+			.setSmallIcon(android.R.drawable.stat_sys_download)
+			.setLargeIcon(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.icn_converter_lab_w), 128, 128, false));
 	}
 
 
@@ -164,7 +168,6 @@ public class DownloadDataImpl implements DownloadData {
 							mBuilder
 								.setContentText(Application.getContext().getResources().getString(R.string.download_complete))
 								.setSmallIcon(android.R.drawable.stat_sys_download_done);
-
 							mNotifyManager.notify(KEY_NOTIFICATION, mBuilder.build());
 						}
 						break;
@@ -230,9 +233,7 @@ public class DownloadDataImpl implements DownloadData {
 							Currency currency = entry.getValue();
 							needUpdate = (db.updateCourse(currentOrgId, key, currency.getAsk(), currency.getBid(), lastJsonUpdate)
 								|| needUpdate);
-
 						}
-
 						// delete old courses, that which is not in new data
 						// don work properly
 						// db.deleteOldCourses(currentOrgId);
