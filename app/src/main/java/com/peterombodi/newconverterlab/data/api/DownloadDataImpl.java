@@ -1,5 +1,6 @@
 package com.peterombodi.newconverterlab.data.api;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.NotificationCompat;
@@ -22,6 +24,7 @@ import com.peterombodi.newconverterlab.presentation.R;
 import com.peterombodi.newconverterlab.presentation.screen.ResponseCallback;
 import com.peterombodi.newconverterlab.presentation.screen.view.MainActivity;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -127,7 +130,7 @@ public class DownloadDataImpl implements DownloadData {
 		Intent notificationIntent = new Intent(context, MainActivity.class);
 		notificationIntent.setAction(Intent.ACTION_MAIN);
 		notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,	notificationIntent, 0);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
 		mNotifyManager =
 			(NotificationManager) Application.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -138,6 +141,7 @@ public class DownloadDataImpl implements DownloadData {
 			.setContentIntent(pendingIntent)
 			.setSmallIcon(android.R.drawable.stat_sys_download)
 			.setLargeIcon(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.icn_converter_lab_w), 128, 128, false));
+		mNotifyManager.notify(KEY_NOTIFICATION, getNotification(mBuilder));
 	}
 
 
@@ -147,7 +151,7 @@ public class DownloadDataImpl implements DownloadData {
 			String contentText = context.getResources().getString(R.string.download_in_progress)
 				+ ", " + _progress + " - " + _total;
 			mBuilder.setContentText(contentText);
-			mNotifyManager.notify(KEY_NOTIFICATION, mBuilder.build());
+			mNotifyManager.notify(KEY_NOTIFICATION, getNotification(mBuilder));
 		}
 	}
 
@@ -168,7 +172,7 @@ public class DownloadDataImpl implements DownloadData {
 							mBuilder
 								.setContentText(Application.getContext().getResources().getString(R.string.download_complete))
 								.setSmallIcon(android.R.drawable.stat_sys_download_done);
-							mNotifyManager.notify(KEY_NOTIFICATION, mBuilder.build());
+							mNotifyManager.notify(KEY_NOTIFICATION, getNotification(mBuilder));
 						}
 						break;
 				}
@@ -209,7 +213,7 @@ public class DownloadDataImpl implements DownloadData {
 			Log.d(TAG, "bankCount = " + bankCount);
 // TODO: 04.12.2016 Алгоритм д.б. приблизительно таким:
 			/* 1 проверить есть ли изменение хоть в одной паре по банку
-            *  2 только если есть:
+			*  2 только если есть:
             *           - поменять все пары
             *           - поменять дату обновления
             *  3 в новой посылке могут быть другие справочники
@@ -265,6 +269,25 @@ public class DownloadDataImpl implements DownloadData {
 				handler.sendMessage(msg);
 			}
 		}
+	}
+
+	private Notification getNotification(NotificationCompat.Builder builder){
+		Notification notification = builder.build();
+		if (Build.MANUFACTURER.equalsIgnoreCase("Xiaomi")) {
+			try {
+				Class miuiNotificationClass = Class.forName("android.app.MiuiNotification");
+				Object miuiNotification = miuiNotificationClass.newInstance();
+				Field field = miuiNotification.getClass().getDeclaredField("customizedIcon");
+				field.setAccessible(true);
+				field.set(miuiNotification, true);
+				field = notification.getClass().getField("extraNotification");
+				field.setAccessible(true);
+				field.set(notification, miuiNotification);
+			} catch (Exception e) {
+				Log.d(TAG, "updateNotification: MiuiNotification Exception!");
+			}
+		}
+		return notification;
 	}
 
 
